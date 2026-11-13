@@ -527,12 +527,13 @@ async function pull(){
     cache=data; dispatch(); loaded=true; clearTimeout(timer);
     if(document.getElementById("banner").classList.contains("warn")) setBanner("","");
     if(!Object.keys(cache).some(k=>k.startsWith("people/"))){ for(const [id,d] of Object.entries(SEED)){ await post("people/"+id,{passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}) } pulling=false; return pull() }
-  }catch(e){ if(!loaded) setBanner("Could not load the shared details. Check your internet and reopen the page.","warn") }
+  }catch(e){ if(!loaded){ clearTimeout(timer); showSeed(); setBanner("Can't reach the shared storage, so this is a read-only copy. Lolitha: check the Google web app is set to \"Who has access: Anyone\".","warn") } }
   pulling=false;
 }
 setBanner("Loading everyone's details…","");
 const timer=setTimeout(()=>{if(!loaded)setBanner("Still loading. Check your internet and reopen the page.","warn")},15000);
-if(API.startsWith("PASTE")){ clearTimeout(timer); loaded=true; P={}; Object.entries(SEED).forEach(([id,d])=>{P[id]={passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}}); renderAll(); setBanner("View only for now. Editing turns on as soon as the shared storage is connected.","warn") }
+function showSeed(){ const keep=db; db=null; loaded=true; P={}; Object.entries(SEED).forEach(([id,d])=>{P[id]={passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}}); renderAll(); db=keep }
+if(API.startsWith("PASTE")){ clearTimeout(timer); showSeed(); setBanner("View only for now. Editing turns on as soon as the shared storage is connected.","warn") }
 else{
   db=sheetDb;
   db.collection("people").onSnapshot(snap=>{P={}; snap.docs.forEach(d=>{P[d.id]=d.data()}); renderAll()});
