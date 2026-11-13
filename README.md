@@ -1,4 +1,4 @@
-# Meal Plan
+# Lolitha
 
 Family weekly meal plan: today's meals, meal and calorie tracking, shopping list, budget and recipes.
 
