@@ -181,7 +181,7 @@ footer{font-size:.82rem;color:var(--muted);text-align:center}
     <div id="families" style="display:grid;gap:12px"></div>
   </section>
 
-  <footer>Visa rules are for Indian passport holders living in the UAE, checked Nov 2026. Rules change often, so confirm on the official embassy site before booking.</footer>
+  <footer>Version 5 · Visa rules are for Indian passport holders living in the UAE, checked Nov 2026. Rules change often, so confirm on the official embassy site before booking.</footer>
 </div>
 
 <script>
@@ -509,9 +509,11 @@ function dispatch(){
   Object.entries(docSubs).forEach(([k,f])=>f({exists:k in cache,data:()=>cache[k]}));
 }
 async function post(key,value){
-  const r=await fetch(API,{method:"POST",body:JSON.stringify({key,value})});
-  const j=await r.json().catch(()=>({ok:false}));
-  if(!j.ok) throw {code:"unavailable"};
+  let r,t;
+  try{ r=await fetch(API,{method:"POST",body:JSON.stringify({key,value})}); t=await r.text(); }
+  catch(e){ throw {code:"unavailable",step:"save",detail:String(e&&e.message||e)} }
+  let j; try{ j=JSON.parse(t) }catch(e){ throw {code:"unavailable",step:"save",detail:"HTTP "+r.status+": "+t.slice(0,120)} }
+  if(!j.ok) throw {code:"unavailable",step:"save",detail:String(j.error||"not ok")};
 }
 const sheetDb={
   collection:c=>({onSnapshot:f=>{colSubs[c]=f;return()=>{}}}),
@@ -521,13 +523,15 @@ let pulling=false;
 async function pull(){
   if(pulling) return; pulling=true;
   try{
-    const r=await fetch(API+(API.includes("?")?"&":"?")+"t="+Date.now());
-    const data=await r.json();
+    let r,t,data;
+    try{ r=await fetch(API+(API.includes("?")?"&":"?")+"t="+Date.now()); t=await r.text(); }
+    catch(e){ throw {step:"load",detail:String(e&&e.message||e)} }
+    try{ data=JSON.parse(t) }catch(e){ throw {step:"load",detail:"HTTP "+r.status+": "+t.replace(/<[^>]+>/g," ").replace(/\s+/g," ").slice(0,120)} }
     if(editing||tripEditing||manualOpen){ pulling=false; return }
     cache=data; dispatch(); loaded=true; clearTimeout(timer);
     if(document.getElementById("banner").classList.contains("warn")) setBanner("","");
     if(!Object.keys(cache).some(k=>k.startsWith("people/"))){ for(const [id,d] of Object.entries(SEED)){ await post("people/"+id,{passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}) } pulling=false; return pull() }
-  }catch(e){ if(!loaded){ clearTimeout(timer); showSeed(); setBanner("Can't reach the shared storage, so this is a read-only copy. Lolitha: check the Google web app is set to \"Who has access: Anyone\".","warn") } }
+  }catch(e){ if(!loaded||!Object.keys(P).length){ clearTimeout(timer); showSeed(); setBanner("Can't reach the shared storage, so this is a read-only copy. ["+((e&&e.step)||"?")+"] "+((e&&e.detail)||String(e)),"warn") } }
   pulling=false;
 }
 setBanner("Loading everyone's details…","");
