@@ -532,7 +532,7 @@ async function pull(){
 }
 setBanner("Loading everyone's details…","");
 const timer=setTimeout(()=>{if(!loaded)setBanner("Still loading. Check your internet and reopen the page.","warn")},15000);
-if(API.startsWith("PASTE")){ clearTimeout(timer); setBanner("Almost ready: the shared Google Sheet isn't connected yet.","warn") }
+if(API.startsWith("PASTE")){ clearTimeout(timer); loaded=true; P={}; Object.entries(SEED).forEach(([id,d])=>{P[id]={passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}}); renderAll(); setBanner("View only for now. Editing turns on as soon as the shared storage is connected.","warn") }
 else{
   db=sheetDb;
   db.collection("people").onSnapshot(snap=>{P={}; snap.docs.forEach(d=>{P[d.id]=d.data()}); renderAll()});
