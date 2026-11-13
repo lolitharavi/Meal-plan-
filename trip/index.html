@@ -1,0 +1,546 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Family Trip Planner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-width column, boarding-pass header, tabbed sections, cards per country */
+:root{
+  --bg:#EEF3F5; --surface:#FFFFFF; --ink:#12242E; --muted:#56707C; --line:#D4DFE4;
+  --accent:#0B6E78; --accent-soft:#D7EEF0; --stamp:#B8461B;
+  --ok:#1E7A3D; --ok-soft:#DDF2E3; --warn:#9A5A00; --warn-soft:#FBEBCF; --bad:#A12828; --bad-soft:#F8DDDD;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1A20; --surface:#16262E; --ink:#E6F0F3; --muted:#93AAB4; --line:#284049;
+  --accent:#5CC6CF; --accent-soft:#16393E; --stamp:#F08A5D;
+  --ok:#6DD38F; --ok-soft:#173826; --warn:#F2B75B; --warn-soft:#3A2C12; --bad:#F08A8A; --bad-soft:#3D1C1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1A20; --surface:#16262E; --ink:#E6F0F3; --muted:#93AAB4; --line:#284049;
+  --accent:#5CC6CF; --accent-soft:#16393E; --stamp:#F08A5D;
+  --ok:#6DD38F; --ok-soft:#173826; --warn:#F2B75B; --warn-soft:#3A2C12; --bad:#F08A8A; --bad-soft:#3D1C1C; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:1.9rem;font-weight:800}
+h2{font-size:1.35rem;font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+/* boarding pass */
+.pass{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pass-top{padding:18px;display:grid;gap:6px}
+.route{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.6rem}
+.route .dash{flex:1;border-top:2px dashed var(--line);min-width:20px}
+.pass-tear{border-top:2px dashed var(--line);position:relative}
+.pass-tear::before,.pass-tear::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.pass-tear::before{left:-11px}.pass-tear::after{right:-11px}
+.pass-stats{display:grid;grid-template-columns:repeat(3,1fr);padding:14px 18px;gap:8px}
+.stat b{display:block;font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+
+/* tabs */
+.tabs{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;overflow-x:auto}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tab{flex:1 0 auto;font:inherit;font-weight:700;font-size:.95rem;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tab:focus-visible,.chip:focus-visible,summary:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+
+section{display:grid;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;min-width:0}
+
+/* budget groups */
+.tier{display:grid;gap:10px}
+.tier-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.lane{display:grid;gap:4px}
+.lane .label{display:flex;gap:6px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+
+/* pills */
+.pill{display:inline-block;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.money{font-family:var(--display);font-weight:800;color:var(--stamp);letter-spacing:.04em}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.9rem;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* destination card */
+.dest-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.dest-head h3{min-width:0}
+.votes{display:flex;flex-wrap:wrap;gap:4px}
+.who{font-size:.85rem;padding:2px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.row{display:grid;grid-template-columns:8.5rem 1fr;gap:4px 10px;font-size:.92rem}
+.row dt{color:var(--muted)}
+.row dd{margin:0;min-width:0}
+details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.9rem}
+details p{margin-top:6px;font-size:.9rem}
+
+/* deadlines */
+.tl{display:grid;gap:0}
+.tl-item{display:grid;grid-template-columns:4.6rem 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tl-item:last-child{border-bottom:0}
+.tl-date{font-family:var(--display);font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.tl-date small{display:block;font-family:var(--body);font-weight:400;font-size:.78rem;color:var(--muted)}
+.tl-item.past .tl-date{color:var(--muted);text-decoration:line-through}
+
+/* families */
+.person{display:grid;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+.person:first-of-type{border-top:0;padding-top:0}
+.person-head{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.wish{margin:0;padding-left:1.3rem;font-size:.92rem;columns:2;column-gap:18px}
+@media (max-width:380px){.wish{columns:1}}
+.note{font-size:.9rem;background:var(--bg);border-radius:10px;padding:8px 10px}
+.banner{font-size:.92rem;padding:10px 14px;border-radius:12px;background:var(--accent-soft);color:var(--ink)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.btn{font:inherit;font-weight:700;font-size:.9rem;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--accent);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn:disabled{opacity:.6}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+form.edit{gap:4px;background:var(--bg);border-radius:12px;padding:12px;border-top:0}
+form.edit label{font-weight:700;font-size:.9rem;margin-top:6px}
+form.edit input,form.edit textarea{font:inherit;width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.err{color:var(--bad)}
+.newplace{display:grid;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+.newplace:first-of-type{border-top:0}
+form.edit select{font:inherit;width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+footer{font-size:.82rem;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
+</style>
+
+</head><body>
+<div class="wrap">
+  <header class="pass" aria-label="Trip summary">
+    <div class="pass-top">
+      <span class="label">4 families · group trip</span>
+      <div class="route"><span>UAE</span><span class="dash" aria-hidden="true"></span><span>?</span></div>
+      <p class="muted">Planned dates <strong style="color:var(--ink)" id="tripDates">8 – 15 March 2027</strong>. Pick a country together using the lists below.</p>
+      <div id="tripEdit"></div>
+    </div>
+    <div class="pass-tear" aria-hidden="true"></div>
+    <div class="pass-stats">
+      <div class="stat"><span class="label">Days to go</span><b id="countdown">–</b></div>
+      <div class="stat"><span class="label">Travellers</span><b>14</b></div>
+      <div class="stat"><span class="label">Ideas</span><b id="ideaCount">–</b></div>
+    </div>
+  </header>
+
+  <p id="banner" class="banner" role="status" hidden></p>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-options" aria-controls="options" aria-selected="true">Best options</button>
+    <button class="tab" role="tab" id="tab-places" aria-controls="places" aria-selected="false">All places</button>
+    <button class="tab" role="tab" id="tab-dates" aria-controls="dates" aria-selected="false">Visa deadlines</button>
+    <button class="tab" role="tab" id="tab-people" aria-controls="people" aria-selected="false">Families</button>
+  </nav>
+
+  <section id="options" role="tabpanel" aria-labelledby="tab-options">
+    <h2>Where can we all go?</h2>
+    <p class="muted small">Grouped by rough cost per person for 5–7 nights including flights from the UAE. <span class="money">Low</span> under AED 4,000 · <span class="money">Mid</span> AED 4,000–8,000 · <span class="money">High</span> over AED 8,000.</p>
+    <div id="tiers" class="tier"></div>
+  </section>
+
+  <section id="places" role="tabpanel" aria-labelledby="tab-places" hidden>
+    <h2>Everyone's dream destinations</h2>
+    <div class="filters" role="group" aria-label="Filter by visa">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="none" aria-pressed="false">No visa needed</button>
+      <button class="chip" data-f="online" aria-pressed="false">Online visa</button>
+      <button class="chip" data-f="embassy" aria-pressed="false">Embassy visa</button>
+    </div>
+    <div class="filters" role="group" aria-label="Filter by budget">
+      <button class="chip" data-b="all" aria-pressed="true">Any budget</button>
+      <button class="chip" data-b="Low" aria-pressed="false">Low</button>
+      <button class="chip" data-b="Mid" aria-pressed="false">Mid</button>
+      <button class="chip" data-b="High" aria-pressed="false">High</button>
+    </div>
+    <p class="muted small" id="placeCount"></p>
+    <div id="destList" style="display:grid;gap:12px"></div>
+    <div id="otherIdeas" class="card" style="gap:4px"></div>
+  </section>
+
+  <section id="dates" role="tabpanel" aria-labelledby="tab-dates" hidden>
+    <h2>Apply for the visa by…</h2>
+    <p class="muted small">Latest safe date to start the visa for a trip starting <span id="tripStartTxt">8 March 2027</span>, counting appointment waits plus a 14-day buffer. Places with no visa or a visa on arrival are not listed.</p>
+    <div class="card"><div class="tl" id="timeline"></div></div>
+  </section>
+
+  <section id="people" role="tabpanel" aria-labelledby="tab-people" hidden>
+    <h2>Families and wish lists</h2>
+    <p class="muted small">Tap <strong>Edit</strong> under your name to update your passport or Emirates ID expiry date, wish list or preferred dates. Passports must be valid 6+ months after the trip and Emirates ID 3+ months after arrival.</p>
+    <div id="families" style="display:grid;gap:12px"></div>
+  </section>
+
+  <footer>Visa rules are for Indian passport holders living in the UAE, checked Nov 2026. Rules change often, so confirm on the official embassy site before booking.</footer>
+</div>
+
+<script>
+let TRIP = new Date(2027,2,8), TRIP_END = new Date(2027,2,15);
+const VISA = {none:"No visa needed", online:"Online visa", embassy:"Embassy visa"};
+// [country, budget, wanted by, visa kind, visa name, days, apply by (YYYY-MM-DD or ""), visa details, who to check]
+const BASE = [
+["Scotland (UK)","High","Nazrin, Hanna, Sumod, Lolitha","embassy","UK Standard Visitor visa",21,"2027-02-01","Apply online, then visit VFS in the UAE.","Nazrin (dates not added yet), Sumod (Emirates ID renewal)"],
+["Turkey","Mid","Roshan, Nazrin, Salman, Seira","embassy","Turkey tourist (sticker) visa",15,"2027-02-07","Sticker visa through the Turkish visa centre in the UAE. An e-Visa is possible only if you also hold a valid US, UK, Schengen or Ireland visa or residence permit.","Roshan and Nazrin (dates not added yet)"],
+["Greece","Mid","Nazrin, Hanna, Lolitha","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE. About 30+ days appointment wait plus ~15 days processing.","Nazrin (dates not added yet)"],
+["Indonesia (Bali)","Mid","Hanna, Sumod, Lolitha","none","Visa on arrival / e-VOA",0,"","30 days, fee about IDR 500,000.",""],
+["Japan","High","Nazrin, Sumod, Lolitha","online","Japan eVISA (tourist, single entry)",7,"2027-02-15","eVISA for UAE residents, apply online.","Nazrin (dates not added yet), Sumod (Emirates ID renewal)"],
+["Maldives","High","Salman, Seira, Hanna","none","Free tourist visa on arrival (30 days)",0,"","Fill in the IMUGA traveller declaration before flying.",""],
+["Norway","High","Roshan, Nazrin, Lolitha","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.","Roshan and Nazrin (dates not added yet)"],
+["Switzerland","High","Hanna, Sumod, Lolitha","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.","Sumod (Emirates ID renewal)"],
+["Bosnia and Herzegovina","Low","Salman, Seira, Alan","embassy","Bosnia & Herzegovina short-stay visa (Type C)",15,"2027-02-07","Visa-free for up to 30 days if you hold a valid multiple-entry Schengen, UK or US visa.",""],
+["Ireland","High","Roshan, Nazrin","embassy","Irish short-stay 'C' visa",56,"2026-12-28","Not covered by a UK or Schengen visa.","Roshan and Nazrin (dates not added yet)"],
+["Mauritius","Mid","Hanna, Sumod","none","Visitor permit on arrival (free)",0,"","Visa-free on arrival for up to 90 days.",""],
+["Montenegro","Mid","Hanna, Lolitha","embassy","Montenegro short-stay visa (Type C)",15,"2027-02-07","Apply at the Embassy of Montenegro in Abu Dhabi. Visa-free only with a valid multiple-entry Schengen, UK or US visa. UAE residence alone is not enough.",""],
+["Morocco","Low","Salman, Seira, Alan","online","Morocco e-Visa",5,"2027-02-17","e-Visa for UAE residents, apply online.",""],
+["Thailand","Low","Alan, Sumod, Lolitha","none","Visa exemption (30 days)",0,"","Fill in the TDAC digital arrival card before travel.",""],
+["Bhutan","Mid","Lolitha","none","Entry permit on arrival",0,"","No visa for Indian citizens. Bring passport or voter ID. Sustainable Development Fee INR 1,200 per person per night.",""],
+["Cambodia","Low","Alan, Sumod","none","Tourist visa on arrival or e-Visa",0,"","Visa on arrival at Phnom Penh or Siem Reap (30 days, about USD 30), or e-Visa online in about 3 days. Fill in the e-Arrival card before travel.",""],
+["Chile","High","Lolitha","embassy","Chile tourist visa (consular)",30,"2027-01-23","Visa-free if you hold a valid US visa.",""],
+["China","Mid","Sumod","embassy","Chinese tourist visa (L visa)",7,"2027-02-15","Apply through the Chinese Visa Application Centre in the UAE.","Sumod (Emirates ID renewal)"],
+["Costa Rica","High","Nazrin","embassy","Costa Rica consular tourist visa",45,"2027-01-08","Not needed if you hold a valid multiple-entry US, UK, Schengen or Canada visa.","Nazrin (dates not added yet)"],
+["Croatia","Mid","Nazrin","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.","Nazrin (dates not added yet)"],
+["Finland","High","Nazrin","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.","Nazrin (dates not added yet)"],
+["India (Lakshadweep)","Low","Seira, Alan","none","Home country",0,"","No visa needed.",""],
+["Kazakhstan","Low","Roshan, Alan","none","Visa exemption (14 days)",0,"","Visa-free for up to 14 days.","Roshan (dates not added yet)"],
+["Kenya (Masai Mara)","High","Nazrin","online","Kenya eTA",3,"2027-02-19","Apply for the Electronic Travel Authorisation online before travel.","Nazrin (dates not added yet)"],
+["Mongolia","Mid","Lolitha","online","Mongolia e-Visa (tourist)",5,"2027-02-17","Free e-Visa for Indian citizens.",""],
+["New Zealand","High","Lolitha","embassy","New Zealand Visitor visa",25,"2027-01-28","Apply online.",""],
+["Portugal","Mid","Lolitha","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.",""],
+["Russia","Mid","Roshan","online","Russia unified e-Visa",4,"2027-02-18","e-Visa online, short stay.","Roshan (dates not added yet)"],
+["Seychelles","High","Nazrin","none","Visitor permit on arrival",0,"","Apply for the Seychelles Travel Authorisation online before travel.","Nazrin (dates not added yet)"],
+["South Korea","Mid","Nazrin","embassy","Korea short-term visitor visa (C-3-9)",10,"2027-02-12","Apply through the Korean visa centre in the UAE.","Nazrin (dates not added yet)"],
+["Spain","Mid","Roshan","embassy","Schengen short-stay visa (Type C)",45,"2027-01-08","Schengen visa through the country's visa centre in the UAE.","Roshan (dates not added yet)"],
+["Taiwan","Mid","Lolitha","embassy","Taiwan visitor visa",7,"2027-02-15","Apply through the Taipei office in Dubai. Online Travel Authorisation only with a valid US, UK, Schengen, Japan, Canada, Australia or NZ visa.",""],
+["United States","High","Roshan","embassy","US B1/B2 visitor visa",180,"","Interview at the US consulate, long waits. Usually too slow for a trip a few months away.","Roshan (dates not added yet)"]
+].map(r=>({name:r[0],budget:r[1],kind:r[3],visa:r[4],days:r[5],by:r[6],info:r[7],key:(r[0]==="India (Lakshadweep)"?"lakshadweep|india":r[0].replace(/ \(.*\)/,"").toLowerCase()), alt:(r[0].match(/\((.*)\)/)||[])[1]}));
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=new Date(); today.setHours(0,0,0,0);
+const fmt=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+const daysTo=d=>Math.round((d-today)/864e5);
+const toDate=s=>{const [y,m,dd]=s.split("-").map(Number);return new Date(y,m-1,dd)};
+function addTerms(d){const base=d.name.replace(/ \(.*\)/,"").toLowerCase(); const alt=(d.name.match(/\((.*)\)/)||[])[1]; d.terms=[base]; if(alt&&alt!=="UK") d.terms.push(alt.toLowerCase()); if(d.q) d.terms.push(d.q.toLowerCase()); return d}
+BASE.forEach(addTerms);
+let D=BASE.slice();
+let C={};            // countries added later: slug -> stored data
+let sampleCap=null;  // Claude lookups, when this viewer has them
+const pending=new Set(), failed=new Set();
+const slug=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60)||"x";
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+function rebuildD(){
+  const extra=Object.entries(C).filter(([k,c])=>!c.skip&&c.name&&!BASE.some(b=>b.name.toLowerCase()===String(c.name).toLowerCase()))
+    .map(([k,c])=>addTerms({name:String(c.name),budget:["Low","Mid","High"].includes(c.budget)?c.budget:"Mid",kind:["none","online","embassy"].includes(c.kind)?c.kind:"embassy",visa:String(c.visa||""),days:Math.max(0,Math.min(365,parseInt(c.days)||0)),by:"",info:String(c.info||""),src:c.src||"",q:c.q||""}));
+  extra.forEach(d=>d.by=byFor(d.kind,d.days));
+  D=BASE.concat(extra);
+}
+const partsOf=w=>w.split("/").map(x=>x.trim()).filter(Boolean);
+const isKnown=part=>{const l=part.toLowerCase(); return D.some(d=>d.terms.some(t=>l.includes(t)))||Object.values(C).some(c=>(c.q||"").toLowerCase()===l)};
+function unknownParts(){const m=new Map(); ALL.forEach(p=>wishesOf(p.id).forEach(w=>partsOf(w).forEach(part=>{if(!isKnown(part)){const k=slug(part); if(!m.has(k))m.set(k,{part,who:[]}); m.get(k).who.push(p.n)}}))); return [...m.entries()]}
+function byFor(kind,days){ if(kind==="none") return ""; const d=new Date(TRIP); d.setDate(d.getDate()-days-14); return iso(d) }
+const isLate=d=>d.kind!=="none"&&d.by&&toDate(d.by)<today;
+function recomputeBy(){BASE.forEach(d=>d.by=byFor(d.kind,d.days)); rebuildD()}
+async function lookup(part){
+  const k=slug(part);
+  if(!sampleCap||!db||pending.has(k)) return;
+  pending.add(k); failed.delete(k); renderPlaces();
+  const prompt=`You help a group of Indian passport holders who live in the UAE plan a family holiday from ${fmt(TRIP)} to ${fmt(TRIP_END)}. Today is ${iso(today)}.
+One of them added this to their dream destinations: ${JSON.stringify(part)}
+
+Reply with JSON only, in this exact shape:
+{"isPlace": true, "name": "", "budget": "Low", "kind": "none", "visa": "", "days": 0, "info": ""}
+
+Rules:
+- isPlace: false if the text is not a country or a region/island/city you can map to one. Then leave the rest empty.
+- name: the country in English. If they named a region or city, write "Country (Region)", e.g. "Indonesia (Bali)".
+- budget: rough cost per person for 5-7 nights including flights from the UAE. Low = under AED 4,000, Mid = AED 4,000-8,000, High = over AED 8,000.
+- kind: "none" if visa-free, visa on arrival, or no visa for Indian citizens; "online" if an e-Visa or eTA applied for online; "embassy" if the visa is through an embassy, consulate or visa centre.
+- visa: the short name of the visa or entry permit.
+- days: approximate total days to get the visa including appointment waits; 0 when kind is "none".
+- info: one or two plain sentences on how to get it, plus useful exceptions (for example visa-free with a valid US/UK/Schengen visa) or arrival forms. Mention if the rules change often.`;
+  try{
+    const r=await sampleCap.json(prompt,{modelTier:"complex"});
+    let doc;
+    if(!r||r.isPlace===false||!r.name){ doc={q:part,skip:true,src:"claude",updated:new Date().toISOString()} }
+    else{
+      const kind=["none","online","embassy"].includes(r.kind)?r.kind:"embassy";
+      const days=kind==="none"?0:Math.max(0,Math.min(365,parseInt(r.days)||0));
+      doc={q:part,name:String(r.name).slice(0,60),budget:["Low","Mid","High"].includes(r.budget)?r.budget:"Mid",kind,visa:String(r.visa||"").slice(0,120),days,by:byFor(kind,days),info:String(r.info||"").slice(0,500),src:"claude",updated:new Date().toISOString()};
+    }
+    await db.doc("countries/"+k).set(doc);
+    C[k]=doc; rebuildD();
+  }catch(e){ failed.add(k) }
+  pending.delete(k); renderAll();
+}
+
+
+// Family structure. Dates, wish lists and preferred dates live in the shared store.
+const FAM=[
+ {name:"Family 1",people:[["roshan","Roshan","Adult"],["nazrin","Nazrin","Adult"],["yuvan","Yuvan","Child"],["rivin","Rivin","Child"]]},
+ {name:"Family 2",people:[["salman","Salman","Adult"],["seira","Seira","Adult"],["mamoos","Mamoos","Child"],["munuz","Munuz","Child"]]},
+ {name:"Family 3",people:[["alan","Alan","Adult"],["hanna","Hanna","Adult"],["abru","Abru","Child"]]},
+ {name:"Family 4",people:[["sumod","Sumod","Adult"],["lolitha","Lolitha","Adult"],["inu","Inu","Child"]]}
+];
+const ALL=FAM.flatMap(f=>f.people.map(([id,n,a])=>({id,n,a,fam:f.name})));
+let P={}; // id -> stored data
+let db=null, loaded=false, editing=null;
+
+const addMonths=(d,m)=>{const x=new Date(d);x.setMonth(x.getMonth()+m);return x};
+function status(p){
+  const d=P[p.id]||{};
+  if(!d.passport||!d.eid) return ["bad","Expiry dates not added yet"];
+  const pp=toDate(d.passport), e=toDate(d.eid), out=[];
+  if(pp<addMonths(TRIP_END,6)) out.push("passport");
+  if(e<addMonths(TRIP,3)) out.push("Emirates ID");
+  if(!out.length) return ["ok","Documents ready"];
+  return ["warn","Renew "+out.join(" and ")+" before trip"];
+}
+const wishesOf=id=>((P[id]||{}).wish||[]).filter(Boolean);
+function whoWants(d){return ALL.filter(p=>wishesOf(p.id).some(w=>d.terms.some(t=>w.toLowerCase().includes(t))))}
+
+
+function visaPill(d){
+  if(d.kind==="none") return `<span class="pill ok">No visa needed</span>`;
+  if(d.kind==="online"&&!isLate(d)) return `<span class="pill info">Online visa · ~${d.days} days</span>`;
+  if(isLate(d)) return `<span class="pill bad">Too late for these dates</span>`;
+  return `<span class="pill warn">Embassy visa · ~${d.days} days</span>`;
+}
+function byText(d){
+  if(!d.by) return d.kind==="embassy"?"Too late for this trip":"Not needed";
+  const dt=toDate(d.by), n=daysTo(dt);
+  return `${fmt(dt)} <span class="muted small">(${n<0?"passed":n===0?"today":n+" days left"})</span>`;
+}
+
+// Best options (country facts only, does not change with edits)
+function renderTiers(){
+const tiers=document.getElementById("tiers"); tiers.innerHTML="";
+["Low","Mid","High"].forEach(b=>{
+  const inB=D.filter(d=>d.budget===b);
+  const lanes=[
+    ["ok","Can go now (no embassy visa)",inB.filter(d=>d.kind!=="embassy")],
+    ["warn","Embassy visa, 30 days or less",inB.filter(d=>d.kind==="embassy"&&!isLate(d)&&d.days<=30)],
+    ["bad","Embassy visa, more than 30 days",inB.filter(d=>d.kind==="embassy"&&(d.days>30||isLate(d)))]
+  ];
+  const el=document.createElement("div"); el.className="card";
+  el.innerHTML=`<div class="tier-head"><h3><span class="money">${b}</span> budget</h3><span class="muted small">${inB.length} places</span></div>`+
+    lanes.map(([c,t,list])=>`<div class="lane"><span class="label"><span class="dot ${c}"></span>${t}</span><p>${list.length?list.map(d=>esc(d.name)+(d.kind==="embassy"?` <span class="muted small">(${d.days}d)</span>`:"")).join(", "):'<span class="muted">None</span>'}</p></div>`).join("");
+  tiers.appendChild(el);
+});
+}
+
+// All places
+let fKind="all", fBudget="all";
+function renderPlaces(){
+  const list=D.map(d=>({...d,who:whoWants(d)})).filter(d=>(fKind==="all"||d.kind===fKind)&&(fBudget==="all"||d.budget===fBudget))
+    .sort((a,b)=>b.who.length-a.who.length||a.name.localeCompare(b.name));
+  document.getElementById("placeCount").textContent=`${list.length} of ${D.length} places, most wanted first`;
+  document.getElementById("destList").innerHTML=list.map(d=>{
+    const check=d.who.filter(p=>status(p)[0]!=="ok").map(p=>`${p.n} (${status(p)[1].toLowerCase()})`).join(", ");
+    return `<article class="card">
+      <div class="dest-head"><h3>${esc(d.name)}</h3><span class="money">${d.budget}</span></div>
+      <div class="votes" aria-label="Wanted by">${d.who.length?d.who.map(p=>`<span class="who">${esc(p.n)}</span>`).join(""):`<span class="muted small">${loaded?"Nobody has this on their list right now":"Loading…"}</span>`}</div>
+      <div>${visaPill(d)}</div>
+      <dl class="row">
+        <dt>Visa</dt><dd>${esc(d.visa)}</dd>
+        <dt>Apply by</dt><dd>${byText(d)}</dd>
+        ${check?`<dt>Check first</dt><dd>${esc(check)}</dd>`:""}
+      </dl>
+      <details><summary>Visa details</summary><p>${esc(d.info)}</p></details>
+      ${d.src==="claude"?`<p class="small muted">Added automatically by Claude. Confirm on the official embassy site before applying.</p>`:d.src==="manual"?`<p class="small muted">Added by a family member.</p>`:""}
+    </article>`}).join("") || `<p class="muted">No places match these filters.</p>`;
+  const oi=document.getElementById("otherIdeas"); if(manualOpen&&oi.querySelector("form.manual")) return;
+  const un=unknownParts(); oi.hidden=!un.length||!loaded;
+  oi.innerHTML=`<span class="label">New places, visa info still needed</span>`+un.map(([k,u])=>`<div class="newplace">
+    <p><strong>${esc(u.part)}</strong> <span class="muted small">· ${esc(u.who.join(", "))}</span></p>
+    ${pending.has(k)?`<p class="small">Claude is looking up the visa, budget and processing time…</p>`:`<div class="btns">${sampleCap?`<button class="btn primary" data-look="${esc(u.part)}">Fill in with Claude</button>`:""}<button class="btn" data-manual="${k}">Add details myself</button><button class="btn" data-skip="${k}" data-q="${esc(u.part)}">Not a country, hide</button></div>${failed.has(k)?`<p class="small err">Claude couldn't look this up. Try again, or add the details yourself.</p>`:""}`}
+    ${manualOpen===k?manualForm(k,u.part):""}
+  </div>`).join("");
+}
+document.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{fKind=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderPlaces()}));
+document.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>{fBudget=b.dataset.b;document.querySelectorAll("[data-b]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderPlaces()}));
+
+let manualOpen=null;
+function manualForm(k,part){return `<form class="edit manual" data-k="${k}" data-q="${esc(part)}">
+  <label for="mn-${k}">Country name</label><input id="mn-${k}" name="name" value="${esc(part)}" required>
+  <label for="mb-${k}">Budget</label><select id="mb-${k}" name="budget"><option>Low</option><option selected>Mid</option><option>High</option></select>
+  <label for="mk-${k}">Visa</label><select id="mk-${k}" name="kind"><option value="none">No visa needed / on arrival</option><option value="online">Online visa (e-Visa)</option><option value="embassy" selected>Embassy visa</option></select>
+  <label for="md-${k}">Days to get the visa (approx.)</label><input id="md-${k}" name="days" type="number" min="0" max="365" value="0" inputmode="numeric">
+  <label for="mv-${k}">Visa name</label><input id="mv-${k}" name="visa" placeholder="e.g. Tourist visa">
+  <label for="mi-${k}">Details</label><input id="mi-${k}" name="info" placeholder="How to apply, fees, forms">
+  <div class="btns"><button type="submit" class="btn primary">Save country</button><button type="button" class="btn" data-manual-cancel>Cancel</button></div>
+  <p class="small err" role="status"></p></form>`}
+const oiEl=document.getElementById("otherIdeas");
+oiEl.addEventListener("click",e=>{
+  const l=e.target.closest("[data-look]"); if(l){lookup(l.dataset.look);return}
+  const m=e.target.closest("[data-manual]"); if(m){manualOpen=m.dataset.manual;renderPlaces();return}
+  if(e.target.closest("[data-manual-cancel]")){manualOpen=null;renderPlaces()}
+  const sk=e.target.closest("[data-skip]"); if(sk){const doc={q:sk.dataset.q,skip:true,src:"manual",updated:new Date().toISOString()}; db.doc("countries/"+sk.dataset.skip).set(doc).then(()=>{C[sk.dataset.skip]=doc;rebuildD();renderAll()}).catch(()=>setBanner("Could not save. Check your internet and try again.","warn"))}
+});
+oiEl.addEventListener("submit",async e=>{
+  e.preventDefault(); const f=e.target, k=f.dataset.k, fd=new FormData(f), err=f.querySelector(".err");
+  const kind=fd.get("kind"), days=kind==="none"?0:Math.max(0,Math.min(365,parseInt(fd.get("days"))||0));
+  const doc={q:f.dataset.q,name:String(fd.get("name")||"").trim().slice(0,60),budget:fd.get("budget"),kind,visa:String(fd.get("visa")||"").trim().slice(0,120),days,by:byFor(kind,days),info:String(fd.get("info")||"").trim().slice(0,500),src:"manual",updated:new Date().toISOString()};
+  if(!doc.name){err.textContent="Enter the country name.";return}
+  try{await db.doc("countries/"+k).set(doc); C[k]=doc; manualOpen=null; rebuildD(); renderAll(); setBanner("Country saved. Everyone now sees it.","ok")}
+  catch(x){err.textContent="Could not save. Check your connection and try again."}
+});
+
+// Deadlines
+function renderTimeline(){
+const groups={};
+D.filter(d=>d.by).forEach(d=>{(groups[d.by]=groups[d.by]||[]).push(d)});
+document.getElementById("timeline").innerHTML=Object.keys(groups).sort().map(k=>{
+  const dt=toDate(k), n=daysTo(dt), past=n<0;
+  return `<div class="tl-item${past?" past":""}">
+    <div class="tl-date">${dt.getDate()} ${dt.toLocaleDateString("en-GB",{month:"short"})}<small>${past?"passed":n+" days left"}</small></div>
+    <div><p><strong>${groups[k].map(d=>esc(d.name)).join(", ")}</strong></p><p class="muted small">${esc(groups[k][0].visa)}${groups[k].some(d=>d.visa!==groups[k][0].visa)?" and others":""}</p></div>
+  </div>`}).join("");
+}
+
+// Families
+function personView(p){
+  const d=P[p.id]||{}, [c,t]=status(p), w=wishesOf(p.id);
+  if(editing===p.id) return `<form class="person edit" data-id="${p.id}">
+    <div class="person-head"><strong>${esc(p.n)} <span class="muted small">· ${p.a}</span></strong></div>
+    <label for="pp-${p.id}">Passport expiry date</label><input type="date" id="pp-${p.id}" name="passport" value="${esc(d.passport||"")}">
+    <label for="eid-${p.id}">Emirates ID expiry date</label><input type="date" id="eid-${p.id}" name="eid" value="${esc(d.eid||"")}">
+    <label for="wish-${p.id}">Dream destinations <span class="muted small">(one per line, favourite first)</span></label><textarea id="wish-${p.id}" name="wish" rows="6">${esc(w.join("\n"))}</textarea>
+    <label for="when-${p.id}">Preferred travel dates</label><input type="text" id="when-${p.id}" name="when" value="${esc(d.when||"")}" placeholder="e.g. Eid holidays">
+    <label for="note-${p.id}">Note</label><input type="text" id="note-${p.id}" name="note" value="${esc(d.note||"")}">
+    
+    <div class="btns"><button type="submit" class="btn primary">Save</button><button type="button" class="btn" data-cancel>Cancel</button></div>
+    <p class="small err" role="status"></p>
+  </form>`;
+  return `<div class="person">
+    <div class="person-head"><strong>${esc(p.n)} <span class="muted small">· ${p.a}</span></strong><span class="pill ${c}">${t}</span></div>
+    ${w.length?`<span class="label">Dream destinations</span><ol class="wish">${w.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}
+    <dl class="row">
+      <dt>Passport expiry</dt><dd>${d.passport?fmt(toDate(d.passport)):'<span class="muted">Not added</span>'}</dd>
+      <dt>Emirates ID expiry</dt><dd>${d.eid?fmt(toDate(d.eid)):'<span class="muted">Not added</span>'}</dd>
+      <dt>Preferred dates</dt><dd>${d.when?esc(d.when):'<span class="muted">Not added</span>'}</dd>
+    </dl>
+    ${d.note?`<p class="note">${esc(d.note)}</p>`:""}
+    ${db?`<div><button class="btn" data-edit="${p.id}">✎ Edit passport, Emirates ID and wishes</button></div>`:""}
+  </div>`;
+}
+function renderFamilies(){
+  document.getElementById("families").innerHTML=FAM.map(f=>`<div class="card"><h3>${f.name}</h3>${ALL.filter(p=>p.fam===f.name).map(personView).join("")}</div>`).join("");
+}
+document.getElementById("families").addEventListener("click",e=>{
+  const b=e.target.closest("[data-edit]"); if(b){editing=b.dataset.edit;renderFamilies();const f=document.querySelector(`form[data-id="${editing}"]`);f&&f.scrollIntoView({block:"start",behavior:"smooth"});return}
+  if(e.target.closest("[data-cancel]")){editing=null;renderFamilies()}
+});
+document.getElementById("families").addEventListener("submit",async e=>{
+  e.preventDefault(); const f=e.target, id=f.dataset.id, btn=f.querySelector("[type=submit]"), err=f.querySelector(".err");
+  const fd=new FormData(f);
+  const data={passport:fd.get("passport")||"",eid:fd.get("eid")||"",wish:String(fd.get("wish")||"").split("\n").map(s=>s.replace(/^\s*\d+[.)]\s*/,"").trim()).filter(Boolean).slice(0,20),when:String(fd.get("when")||"").trim().slice(0,200),note:String(fd.get("note")||"").trim().slice(0,300),updated:new Date().toISOString()};
+  btn.disabled=true; btn.textContent="Saving…"; err.textContent="";
+  try{ await db.doc("people/"+id).set(data); P[id]=data; editing=null; renderAll(); setBanner("Saved. Everyone now sees the update.","ok");
+    const news=[...new Set(data.wish.flatMap(partsOf).filter(x=>!isKnown(x)))];
+    if(news.length&&sampleCap){ show("places",true); news.slice(0,5).forEach(x=>lookup(x)); }
+  }
+  catch(x){ btn.disabled=false; btn.textContent="Save"; err.textContent="Could not save. Check your connection and try again."; }
+});
+
+function setBanner(msg,kind){const b=document.getElementById("banner"); b.hidden=!msg; b.className="banner "+(kind||""); b.textContent=msg||""; if(kind==="ok") setTimeout(()=>{if(b.textContent===msg)b.hidden=true},4000)}
+let tripEditing=false;
+function renderTrip(){
+  const L=(d,o)=>d.toLocaleDateString("en-GB",o), end=L(TRIP_END,{day:"numeric",month:"long",year:"numeric"});
+  const start=TRIP.getFullYear()!==TRIP_END.getFullYear()?L(TRIP,{day:"numeric",month:"long",year:"numeric"}):TRIP.getMonth()!==TRIP_END.getMonth()?L(TRIP,{day:"numeric",month:"long"}):String(TRIP.getDate());
+  document.getElementById("tripDates").textContent=`${start} – ${end}`;
+  document.getElementById("tripStartTxt").textContent=fmt(TRIP);
+  document.getElementById("countdown").textContent=Math.max(0,daysTo(TRIP));
+  if(tripEditing&&document.getElementById("tripForm")) return;
+  document.getElementById("tripEdit").innerHTML=!db?"":tripEditing?`<form class="edit" id="tripForm">
+    <label for="ts">Trip start date</label><input type="date" id="ts" name="start" value="${iso(TRIP)}" required>
+    <label for="te">Trip end date</label><input type="date" id="te" name="end" value="${iso(TRIP_END)}" required>
+    <div class="btns"><button type="submit" class="btn primary">Save dates</button><button type="button" class="btn" id="tripCancel">Cancel</button></div>
+    <p class="small err" role="status"></p></form>`:`<button class="btn" id="tripBtn">✎ Change trip dates</button>`;
+}
+document.getElementById("tripEdit").addEventListener("click",e=>{
+  if(e.target.id==="tripBtn"){tripEditing=true;renderTrip()}
+  if(e.target.id==="tripCancel"){tripEditing=false;renderTrip()}
+});
+document.getElementById("tripEdit").addEventListener("submit",async e=>{
+  e.preventDefault(); const fd=new FormData(e.target), err=e.target.querySelector(".err");
+  const st=String(fd.get("start")||""), en=String(fd.get("end")||"");
+  if(!st||!en||en<st){err.textContent="The end date must be on or after the start date.";return}
+  try{await db.doc("settings/trip").set({start:st,end:en,updated:new Date().toISOString()}); setTrip(st,en); tripEditing=false; renderAll(); setBanner("Trip dates saved. Visa deadlines and document checks are updated for everyone.","ok")}
+  catch(x){err.textContent="Could not save. Check your connection and try again."}
+});
+function setTrip(st,en){ if(!/^\d{4}-\d{2}-\d{2}$/.test(st||"")||!/^\d{4}-\d{2}-\d{2}$/.test(en||"")) return; TRIP=toDate(st); TRIP_END=toDate(en); recomputeBy() }
+function renderAll(){renderTrip();document.getElementById("ideaCount").textContent=D.length;renderTiers();renderTimeline();renderPlaces();if(!editing)renderFamilies()}
+renderAll();
+
+// Tabs
+const tabs=[...document.querySelectorAll(".tab")];
+function show(id,push){
+  tabs.forEach(t=>{const on=t.getAttribute("aria-controls")===id;t.setAttribute("aria-selected",on);document.getElementById(t.getAttribute("aria-controls")).hidden=!on});
+  if(push){try{history.replaceState(null,"","#"+id)}catch(e){}}
+}
+tabs.forEach(t=>t.addEventListener("click",()=>{show(t.getAttribute("aria-controls"),true);window.scrollTo({top:0})}));
+const h=location.hash.slice(1); if(["options","places","dates","people"].includes(h)) show(h,false);
+window.addEventListener("hashchange",()=>{const k=location.hash.slice(1);if(["options","places","dates","people"].includes(k))show(k,false)});
+
+// Shared data, stored in a Google Sheet through a small Google Apps Script web app.
+const API = "PASTE_WEB_APP_URL_HERE";
+const SEED = {
+ roshan:{wish:["Kazakhstan","Ireland","Spain","Turkey","Norway","United States","Russia"]},
+ nazrin:{wish:["Turkey","South Korea","Greece","Norway / Finland","Ireland / Scotland (UK)","Kenya (Masai Mara)","Seychelles","Costa Rica","Croatia","Japan"]},
+ salman:{wish:["Turkey","Bosnia and Herzegovina","Morocco","Maldives"],when:"May – December 2027"},
+ seira:{wish:["Turkey","Bosnia and Herzegovina","Morocco","Maldives","India (Lakshadweep)"]},
+ alan:{wish:["Low budget countries"],when:"Together with UAE public holidays"},
+ hanna:{wish:["Switzerland","Scotland (UK)","Indonesia (Bali)","Mauritius","Maldives","Greece","Montenegro"]},
+ sumod:{wish:["Switzerland","Scotland (UK)","Thailand","Japan","China","Cambodia","Mauritius","Indonesia"]},
+ lolitha:{wish:["Norway","New Zealand","Chile","Mongolia","Greece","Taiwan","Montenegro / Scotland (UK) / Portugal","Bhutan","Japan / Thailand / Indonesia (Bali)","Switzerland"],when:"26 Dec – 26 May",note:"Annual vacation planning: July – August 2027"}
+};
+let cache={}; const colSubs={}, docSubs={};
+function dispatch(){
+  Object.entries(colSubs).forEach(([c,f])=>f({docs:Object.keys(cache).filter(k=>k.startsWith(c+"/")).map(k=>({id:k.slice(c.length+1),exists:true,data:()=>cache[k]}))}));
+  Object.entries(docSubs).forEach(([k,f])=>f({exists:k in cache,data:()=>cache[k]}));
+}
+async function post(key,value){
+  const r=await fetch(API,{method:"POST",body:JSON.stringify({key,value})});
+  const j=await r.json().catch(()=>({ok:false}));
+  if(!j.ok) throw {code:"unavailable"};
+}
+const sheetDb={
+  collection:c=>({onSnapshot:f=>{colSubs[c]=f;return()=>{}}}),
+  doc:k=>({set:async d=>{await post(k,d);cache[k]=d;dispatch()},onSnapshot:f=>{docSubs[k]=f;return()=>{}}})
+};
+let pulling=false;
+async function pull(){
+  if(pulling) return; pulling=true;
+  try{
+    const r=await fetch(API+(API.includes("?")?"&":"?")+"t="+Date.now());
+    const data=await r.json();
+    if(editing||tripEditing||manualOpen){ pulling=false; return }
+    cache=data; dispatch(); loaded=true; clearTimeout(timer);
+    if(document.getElementById("banner").classList.contains("warn")) setBanner("","");
+    if(!Object.keys(cache).some(k=>k.startsWith("people/"))){ for(const [id,d] of Object.entries(SEED)){ await post("people/"+id,{passport:"",eid:"",wish:d.wish,when:d.when||"",note:d.note||""}) } pulling=false; return pull() }
+  }catch(e){ if(!loaded) setBanner("Could not load the shared details. Check your internet and reopen the page.","warn") }
+  pulling=false;
+}
+setBanner("Loading everyone's details…","");
+const timer=setTimeout(()=>{if(!loaded)setBanner("Still loading. Check your internet and reopen the page.","warn")},15000);
+if(API.startsWith("PASTE")){ clearTimeout(timer); setBanner("Almost ready: the shared Google Sheet isn't connected yet.","warn") }
+else{
+  db=sheetDb;
+  db.collection("people").onSnapshot(snap=>{P={}; snap.docs.forEach(d=>{P[d.id]=d.data()}); renderAll()});
+  db.doc("settings/trip").onSnapshot(snap=>{ if(snap.exists){const t=snap.data(); setTrip(t.start,t.end); renderAll()} });
+  db.collection("countries").onSnapshot(snap=>{C={}; snap.docs.forEach(d=>{C[d.id]=d.data()}); rebuildD(); renderAll()});
+  pull();
+  setInterval(()=>{if(!document.hidden) pull()},15000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden) pull()});
+}
+</script>
+</body></html>
