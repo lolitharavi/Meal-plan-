@@ -1,9 +1,12 @@
 // Family Trip Planner - shared storage.
-// Paste this into Extensions > Apps Script of a new Google Sheet, then Deploy > New deployment > Web app,
+// Paste this into a new project at script.google.com/create (it creates its own Google Sheet), then Deploy > New deployment > Web app,
 // Execute as: Me, Who has access: Anyone. Copy the Web app URL and send it to Claude.
 
 function sheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty('SHEET_ID');
+  var ss = id ? SpreadsheetApp.openById(id) : null;
+  if (!ss) { ss = SpreadsheetApp.create('Family Trip Data'); props.setProperty('SHEET_ID', ss.getId()); }
   var sh = ss.getSheetByName('Data');
   if (!sh) { sh = ss.insertSheet('Data'); sh.appendRow(['key', 'json', 'updated']); }
   return sh;
