@@ -1,9 +1,9 @@
 // Network first, so every open with internet gets the latest version; cache for offline.
 // Registered with scope ./diary/ so it takes over from the meal plan's worker on these pages.
-const CACHE = "diary-v6";
+const CACHE = "diary-v7";
 const FILES = ["./", "index.html", "manifest.webmanifest",
   "../fonts/atkinson-hyperlegible-latin-400-normal.woff2", "../fonts/atkinson-hyperlegible-latin-700-normal.woff2",
-  "../fonts/bricolage-grotesque-latin-opsz-normal.woff2", "icons/icon-192.png", "icons/apple-touch-icon.png"];
+  "../fonts/bricolage-grotesque-latin-opsz-normal.woff2", "fonts/caveat-latin-400-normal.woff2", "fonts/caveat-latin-700-normal.woff2", "icons/icon-192.png", "icons/apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", e => {

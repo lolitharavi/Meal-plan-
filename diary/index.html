@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2f3e6b">
+<meta name="theme-color" content="#fffdf6">
 <title>Daily Diary</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -15,6 +15,8 @@
 <style>
 @font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(../fonts/bricolage-grotesque-latin-opsz-normal.woff2) format("woff2")}
 @font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Caveat";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/caveat-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Caveat";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/caveat-latin-700-normal.woff2) format("woff2")}
 @font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2")}
 :root{
   /* Ink blue + warm paper. Fix marks: red for the old words, green for the new. */
@@ -234,6 +236,128 @@ html.locked header,html.locked main,html.locked nav.tabs{visibility:hidden}
 #lock .forgot .btn.plain{background:none;color:inherit;border:1.5px solid rgba(255,255,255,.4)}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:99px;font-size:14px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
+
+/* ================= Personal journal look ================= */
+:root{
+  --hand:"Caveat","Segoe Print","Bradley Hand",cursive;
+  --ink-blue:#1f3a8a; --blue-soft:#e4e9f6; --pen:#24306a; --redpen:#c2412d;
+  --ink:#2c2a33; --muted:#7a7366; --paper:#e9e1cf; --card:#fffdf6; --line:#e1d7c2;
+  --rule:#c9d5ea; --margin:#e8a9a1; --ring:#3b3b40; --note:#fff6c9; --desk:#d8cdb5;
+  --good:#2f6d4f; --good-soft:#e1efe3; --gold:#b9831c; --gold-soft:#f8ecd0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink-blue:#a9bcff; --blue-soft:#262c45; --pen:#c9d3ff; --redpen:#ff9b86;
+    --ink:#e9e6dd; --muted:#a7a091; --paper:#121318; --card:#1c1d24; --line:#2f303a;
+    --rule:#2b3046; --margin:#5a3330; --ring:#8b8b93; --note:#2a2716; --desk:#121318;
+  }
+}
+:root[data-theme="dark"]{
+  --ink-blue:#a9bcff; --blue-soft:#262c45; --pen:#c9d3ff; --redpen:#ff9b86;
+  --ink:#e9e6dd; --muted:#a7a091; --paper:#121318; --card:#1c1d24; --line:#2f303a;
+  --rule:#2b3046; --margin:#5a3330; --ring:#8b8b93; --note:#2a2716; --desk:#121318;
+}
+body{background:var(--desk)}
+/* header = top of the notebook page */
+header{background:var(--card);color:var(--ink);border-bottom:2px solid var(--rule);box-shadow:0 1px 0 var(--line)}
+:root[data-theme="dark"] header{color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header{color:var(--ink)}}
+header h1{font-family:var(--hand);font-weight:700;font-size:32px;color:var(--pen);line-height:1}
+header p{font-family:var(--hand);font-size:21px;opacity:1;color:var(--muted);letter-spacing:.04em}
+header .nav{color:var(--pen)}
+/* the page: spiral rings on the left, red margin, cream paper */
+main{gap:16px}
+#vWrite{position:relative;background:var(--card);margin-top:12px;margin-bottom:12px;border-radius:4px 12px 12px 4px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(60,40,10,.10);padding:18px 16px 110px 46px;max-width:620px}
+@media (min-width:660px){#vWrite{margin-left:auto;margin-right:auto}}
+@media (max-width:659px){#vWrite{margin-left:10px;margin-right:10px}}
+#vWrite::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;width:16px;
+  background:repeating-linear-gradient(to bottom,transparent 0 13px,var(--ring) 13px 19px,transparent 19px 34px);border-radius:3px;opacity:.85}
+#vWrite::after{content:"";position:absolute;left:34px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.7}
+.card{background:transparent;border:0;border-radius:0;padding:0}
+/* mood line */
+.moods{gap:2px;align-items:flex-end}
+.moods::before{content:"Today I feel";font-family:var(--hand);font-size:22px;color:var(--pen);align-self:center;margin-right:6px;white-space:nowrap}
+.moods button{background:transparent;border:0;border-radius:50%;padding:4px 0;font-size:22px}
+.moods button span{font-family:var(--hand);font-size:15px}
+.moods button[aria-pressed="true"]{background:transparent;box-shadow:inset 0 0 0 2px var(--redpen);border-radius:40%}
+@media (max-width:380px){.moods button span{display:none}}
+/* lined writing */
+textarea#entry,.area textarea{--lh:32px;font-size:17px;line-height:var(--lh);color:var(--pen);border:0;border-radius:0;padding:0 2px;
+  background-color:transparent;background-image:linear-gradient(to bottom,transparent calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px));
+  background-size:100% var(--lh);background-attachment:local;outline:none}
+textarea#entry{min-height:calc(var(--lh) * 7)}
+.area textarea{min-height:calc(var(--lh) * 3)}
+.area textarea:focus{border-color:transparent}
+textarea::placeholder{color:var(--muted);opacity:.8;font-style:italic}
+.entrycard:before{content:"Dear diary,";display:block;font-family:var(--hand);font-size:26px;color:var(--pen);line-height:1.1;margin-bottom:4px}
+.meta{border-top:0;padding-top:4px;font-family:var(--hand);font-size:18px}
+/* journal heading */
+.jhead{border-top:2px dashed var(--line);padding-top:14px;margin-top:6px;display:block}
+.jhead h2{font-family:var(--hand);font-size:34px;font-weight:700;color:var(--pen);line-height:1}
+.jhead span{font-family:var(--hand);font-size:18px}
+#areas{gap:4px!important}
+/* life areas as notebook sections */
+.area{border-bottom:1px dashed var(--line)}
+.area summary{padding:8px 0;gap:10px}
+.area .ai{background:transparent;width:30px;height:30px;font-size:22px}
+.area .an{font-family:var(--hand);font-size:27px;font-weight:700;color:var(--pen);line-height:1.05}
+.area .an small{font-family:var(--body);font-size:12.5px;font-weight:400;margin-top:2px}
+.area .abody{border-top:0;padding:0 0 12px}
+.goals{gap:0;margin:0 0 6px}
+.goal{background:transparent;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:6px 2px;font-family:var(--hand);font-size:22px;line-height:1.1;color:var(--ink);min-height:40px}
+.goal .bx{border:2px solid var(--pen);border-radius:3px;width:20px;height:20px;transform:rotate(-2deg)}
+.goal[aria-pressed="true"]{background:transparent;border-color:var(--rule)}
+.goal[aria-pressed="true"] .bx{background:transparent;border-color:var(--good)}
+.goal .bx svg{stroke:var(--good)!important;width:18px;height:18px;stroke-width:3.2}
+.goal[aria-pressed="true"] span:last-child{color:var(--good)}
+/* buttons: like stickers on the page */
+.actrow{flex-direction:column;gap:8px;margin-top:4px}
+.actrow .btn{width:100%;padding:12px 14px}
+.btn{border-radius:10px}
+#review,#sugCard{background:var(--card)}
+/* grammar marks in red pen */
+.preview{font-size:17px;line-height:32px;color:var(--pen)}
+.preview mark{background:transparent;border-bottom:2px solid var(--redpen);border-radius:0}
+.sug del{background:transparent;color:var(--redpen)}
+.sug ins{background:transparent;color:var(--good);font-family:var(--hand);font-size:22px}
+.sug .kind{color:var(--redpen)}
+.revhead h3{font-family:var(--hand);font-size:24px;text-transform:none;letter-spacing:0;color:var(--redpen)}
+/* teacher's note for writing feedback */
+#fbCard{background:var(--note);border-radius:3px;padding:16px 14px;box-shadow:0 2px 8px rgba(60,40,10,.15);margin:4px -4px 0;position:relative}
+#fbCard::before{content:"";position:absolute;top:-9px;left:50%;width:84px;height:20px;margin-left:-42px;background:rgba(200,190,160,.55);transform:rotate(-2deg)}
+.band{background:transparent;color:var(--redpen)!important;border:2.5px solid var(--redpen);border-radius:50%;transform:rotate(-4deg)}
+.band b{font-family:var(--hand);font-size:32px}
+.fbtop h2{font-family:var(--hand);font-size:28px;color:var(--redpen)}
+.mini a{background:transparent;border:1.5px solid var(--line);color:var(--redpen)}
+.mini a b{font-family:var(--hand);font-size:22px}
+.crit{border-top:1px dashed var(--line)}
+.crit h4 span{font-family:var(--hand);font-size:23px;color:var(--pen)}
+.crit h4 b{font-family:var(--hand);font-size:24px;color:var(--redpen)}
+.bar i{background:var(--redpen);opacity:.75}
+.polished{background:transparent;color:var(--pen);font-size:17px;line-height:32px;padding:0 2px;border-radius:0;
+  background-image:linear-gradient(to bottom,transparent 31px,var(--rule) 31px);background-size:100% 32px}
+.fbsec h3,.fbsec summary{font-family:var(--hand);font-size:22px;text-transform:none;letter-spacing:0;color:var(--pen)}
+/* other pages share the paper look */
+#vPast .card,#vSettings .card{background:var(--card);border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+#vPast h3,#vSettings h3{font-family:var(--hand);font-size:24px;text-transform:none;letter-spacing:0;color:var(--pen);margin-bottom:6px}
+.stat{background:var(--card);border:0;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.stat b{font-family:var(--hand);font-size:32px;color:var(--pen)}
+.calhead h2{font-family:var(--hand);font-size:28px;color:var(--pen)}
+.cal button.has{background:var(--blue-soft)}
+.cal button.sel{background:var(--pen)}
+.item .d{font-family:var(--hand);font-size:22px;color:var(--pen);font-weight:700}
+.item .s{color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--pen);border-color:var(--pen)}
+nav.tabs{background:var(--card)}
+#lock{background:#1f2a52}
+#lock h2{font-family:var(--hand);font-size:40px}
+/* page turn */
+@keyframes turnNext{from{opacity:0;transform:perspective(1200px) rotateY(-14deg) translateX(30px)}to{opacity:1;transform:none}}
+@keyframes turnPrev{from{opacity:0;transform:perspective(1200px) rotateY(14deg) translateX(-30px)}to{opacity:1;transform:none}}
+#vWrite.turn-next{animation:turnNext .32s ease-out;transform-origin:left center}
+#vWrite.turn-prev{animation:turnPrev .32s ease-out;transform-origin:right center}
+@media (prefers-reduced-motion: reduce){#vWrite.turn-next,#vWrite.turn-prev{animation:none}}
 </style>
 </head>
 <body>
@@ -273,7 +397,7 @@ html.locked header,html.locked main,html.locked nav.tabs{visibility:hidden}
     <textarea id="entry" placeholder="How was your day? Write anything. Mistakes are fine, you can check them after." spellcheck="true" autocapitalize="sentences"></textarea>
     <div class="meta"><span id="wc">0 words</span><span id="saved"></span></div>
   </div>
-  <div class="jhead"><h2>Journal</h2><span class="small muted">Tick what you worked on. All optional.</span></div>
+  <div class="jhead"><h2>My life areas</h2><span class="small muted">Tick what you worked on today. All optional.</span></div>
   <div id="areas" style="display:flex;flex-direction:column;gap:10px"></div>
   <div class="btnrow actrow">
     <button class="btn" id="checkBtn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg><span>Check grammar</span></button>
@@ -383,7 +507,7 @@ var entries = load("diary.entries", {});
 var settings = load("diary.settings", {});
 if(!settings.variant) settings.variant = "British/Indian English";
 if(!settings.remTime) settings.remTime = "21:00";
-var APP_VERSION = "1.5";
+var APP_VERSION = "1.6";
 // Which service a pasted key belongs to, from its prefix.
 function keyKind(k){ k = (k||"").trim(); return /^AIza/.test(k) ? "gemini" : /^sk-ant-/.test(k) ? "claude" : null; }
 // A Gemini key saved in the Claude field (older versions only had that field): move it over.
@@ -473,8 +597,9 @@ function areaSummary(id){
 }
 function renderHeader(){
   var t = todayKey();
-  $("htitle").textContent = cur===t ? "Today" : cur===addDays(t,-1) ? "Yesterday" : shortDate(cur);
-  $("hsub").textContent = longDate(cur);
+  var d = dateOf(cur), wd = d.toLocaleDateString(undefined,{weekday:"long"});
+  $("htitle").textContent = cur===t ? "Today, " + wd : cur===addDays(t,-1) ? "Yesterday, " + wd : wd;
+  $("hsub").textContent = pad(d.getDate()) + " / " + pad(d.getMonth()+1) + " / " + d.getFullYear();
   $("nextDay").disabled = cur >= t;
 }
 function openDay(k){
@@ -540,8 +665,30 @@ $("moods").addEventListener("click", function(ev){
   if(isEmpty(e)) delete entries[cur]; else entries[cur] = e;
   store("diary.entries", entries); renderMoods(); renderMeta();
 });
-$("prevDay").onclick = function(){ openDay(addDays(cur,-1)); };
-$("nextDay").onclick = function(){ if(cur < todayKey()) openDay(addDays(cur,1)); };
+function turnPage(dir){
+  var k = addDays(cur, dir);
+  if(dir > 0 && cur >= todayKey()) return;
+  openDay(k);
+  var v = $("vWrite"); v.classList.remove("turn-next","turn-prev"); void v.offsetWidth;
+  v.classList.add(dir > 0 ? "turn-next" : "turn-prev");
+  window.scrollTo(0, 0);
+}
+$("vWrite").addEventListener("animationend", function(){ this.classList.remove("turn-next","turn-prev"); });
+$("prevDay").onclick = function(){ turnPage(-1); };
+$("nextDay").onclick = function(){ turnPage(1); };
+// Swipe across the page to turn to the previous or next day (not while writing in a box).
+(function(){
+  var sx = 0, sy = 0, ok = false;
+  $("vWrite").addEventListener("touchstart", function(ev){
+    var t = ev.touches[0]; ok = ev.touches.length === 1 && !ev.target.closest("textarea,input,select,.chips");
+    sx = t.clientX; sy = t.clientY;
+  }, {passive:true});
+  $("vWrite").addEventListener("touchend", function(ev){
+    if(!ok) return; ok = false;
+    var t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) > 80 && Math.abs(dy) < 50) turnPage(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
 
 /* ---------- suggestions ---------- */
 function relocate(){
