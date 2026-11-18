@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#fffdf6">
+<meta name="theme-color" content="#faf8fb">
 <title>Daily Diary</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -237,126 +237,114 @@ html.locked header,html.locked main,html.locked nav.tabs{visibility:hidden}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:99px;font-size:14px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
 
-/* ================= Personal journal look ================= */
+/* ================= Pastel "Daily Journal" look ================= */
 :root{
-  --hand:"Caveat","Segoe Print","Bradley Hand",cursive;
-  --ink-blue:#1f3a8a; --blue-soft:#e4e9f6; --pen:#24306a; --redpen:#c2412d;
-  --ink:#2c2a33; --muted:#7a7366; --paper:#e9e1cf; --card:#fffdf6; --line:#e1d7c2;
-  --rule:#c9d5ea; --margin:#e8a9a1; --ring:#3b3b40; --note:#fff6c9; --desk:#d8cdb5;
-  --good:#2f6d4f; --good-soft:#e1efe3; --gold:#b9831c; --gold-soft:#f8ecd0;
+  --lav:#e6e1f7; --lav-d:#b9b0e6; --mint:#d4ece2; --pink:#efd2d6; --peach:#f3dfd2; --mauve:#8c6b78; --mauve-d:#6f5260;
+  --ink-blue:#5d5a8f; --blue-soft:#eceaf8; --ink:#3b3742; --muted:#857e8c; --paper:#faf8fb; --card:#ffffff; --line:#e7e2ea;
+  --grid:#eee9f1; --rule:#7d7685; --good:#3d7a62; --good-soft:#dcefe6; --gold:#b98536; --gold-soft:#f8ecd6; --redpen:#b5485a;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink-blue:#a9bcff; --blue-soft:#262c45; --pen:#c9d3ff; --redpen:#ff9b86;
-    --ink:#e9e6dd; --muted:#a7a091; --paper:#121318; --card:#1c1d24; --line:#2f303a;
-    --rule:#2b3046; --margin:#5a3330; --ring:#8b8b93; --note:#2a2716; --desk:#121318;
+    --lav:#2c2940; --lav-d:#5b548f; --mint:#1f3229; --pink:#3a2529; --peach:#3a2d24; --mauve:#d7b3c2; --mauve-d:#e8c9d6;
+    --ink-blue:#b9b4ef; --blue-soft:#2a2840; --ink:#ece8f0; --muted:#a59eac; --paper:#141318; --card:#1d1c23; --line:#302e38;
+    --grid:#1b1a20; --rule:#6a6474; --good:#8fd1b2; --good-soft:#1d3229; --redpen:#f0a0ad;
   }
 }
 :root[data-theme="dark"]{
-  --ink-blue:#a9bcff; --blue-soft:#262c45; --pen:#c9d3ff; --redpen:#ff9b86;
-  --ink:#e9e6dd; --muted:#a7a091; --paper:#121318; --card:#1c1d24; --line:#2f303a;
-  --rule:#2b3046; --margin:#5a3330; --ring:#8b8b93; --note:#2a2716; --desk:#121318;
+  --lav:#2c2940; --lav-d:#5b548f; --mint:#1f3229; --pink:#3a2529; --peach:#3a2d24; --mauve:#d7b3c2; --mauve-d:#e8c9d6;
+  --ink-blue:#b9b4ef; --blue-soft:#2a2840; --ink:#ece8f0; --muted:#a59eac; --paper:#141318; --card:#1d1c23; --line:#302e38;
+  --grid:#1b1a20; --rule:#6a6474; --good:#8fd1b2; --good-soft:#1d3229; --redpen:#f0a0ad;
 }
-body{background:var(--desk)}
-/* header = top of the notebook page */
-header{background:var(--card);color:var(--ink);border-bottom:2px solid var(--rule);box-shadow:0 1px 0 var(--line)}
-:root[data-theme="dark"] header{color:var(--ink)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header{color:var(--ink)}}
-header h1{font-family:var(--hand);font-weight:700;font-size:32px;color:var(--pen);line-height:1}
-header p{font-family:var(--hand);font-size:21px;opacity:1;color:var(--muted);letter-spacing:.04em}
-header .nav{color:var(--pen)}
-/* the page: spiral rings on the left, red margin, cream paper */
-main{gap:16px}
-#vWrite{position:relative;background:var(--card);margin-top:12px;margin-bottom:12px;border-radius:4px 12px 12px 4px;
-  box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(60,40,10,.10);padding:18px 16px 110px 46px;max-width:620px}
-@media (min-width:660px){#vWrite{margin-left:auto;margin-right:auto}}
-@media (max-width:659px){#vWrite{margin-left:10px;margin-right:10px}}
-#vWrite::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;width:16px;
-  background:repeating-linear-gradient(to bottom,transparent 0 13px,var(--ring) 13px 19px,transparent 19px 34px);border-radius:3px;opacity:.85}
-#vWrite::after{content:"";position:absolute;left:34px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.7}
-.card{background:transparent;border:0;border-radius:0;padding:0}
-/* mood line */
-.moods{gap:2px;align-items:flex-end}
-.moods::before{content:"Today I feel";font-family:var(--hand);font-size:22px;color:var(--pen);align-self:center;margin-right:6px;white-space:nowrap}
-.moods button{background:transparent;border:0;border-radius:50%;padding:4px 0;font-size:22px}
-.moods button span{font-family:var(--hand);font-size:15px}
-.moods button[aria-pressed="true"]{background:transparent;box-shadow:inset 0 0 0 2px var(--redpen);border-radius:40%}
-@media (max-width:380px){.moods button span{display:none}}
-/* lined writing */
-textarea#entry,.area textarea{--lh:32px;font-size:17px;line-height:var(--lh);color:var(--pen);border:0;border-radius:0;padding:0 2px;
-  background-color:transparent;background-image:linear-gradient(to bottom,transparent calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px));
-  background-size:100% var(--lh);background-attachment:local;outline:none}
-textarea#entry{min-height:calc(var(--lh) * 7)}
-.area textarea{min-height:calc(var(--lh) * 3)}
-.area textarea:focus{border-color:transparent}
-textarea::placeholder{color:var(--muted);opacity:.8;font-style:italic}
-.entrycard:before{content:"Dear diary,";display:block;font-family:var(--hand);font-size:26px;color:var(--pen);line-height:1.1;margin-bottom:4px}
-.meta{border-top:0;padding-top:4px;font-family:var(--hand);font-size:18px}
-/* journal heading */
-.jhead{border-top:2px dashed var(--line);padding-top:14px;margin-top:6px;display:block}
-.jhead h2{font-family:var(--hand);font-size:34px;font-weight:700;color:var(--pen);line-height:1}
-.jhead span{font-family:var(--hand);font-size:18px}
-#areas{gap:4px!important}
-/* life areas as notebook sections */
-.area{border-bottom:1px dashed var(--line)}
-.area summary{padding:8px 0;gap:10px}
-.area .ai{background:transparent;width:30px;height:30px;font-size:22px}
-.area .an{font-family:var(--hand);font-size:27px;font-weight:700;color:var(--pen);line-height:1.05}
-.area .an small{font-family:var(--body);font-size:12.5px;font-weight:400;margin-top:2px}
-.area .abody{border-top:0;padding:0 0 12px}
-.goals{gap:0;margin:0 0 6px}
-.goal{background:transparent;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:6px 2px;font-family:var(--hand);font-size:22px;line-height:1.1;color:var(--ink);min-height:40px}
-.goal .bx{border:2px solid var(--pen);border-radius:3px;width:20px;height:20px;transform:rotate(-2deg)}
-.goal[aria-pressed="true"]{background:transparent;border-color:var(--rule)}
-.goal[aria-pressed="true"] .bx{background:transparent;border-color:var(--good)}
-.goal .bx svg{stroke:var(--good)!important;width:18px;height:18px;stroke-width:3.2}
-.goal[aria-pressed="true"] span:last-child{color:var(--good)}
-/* buttons: like stickers on the page */
-.actrow{flex-direction:column;gap:8px;margin-top:4px}
-.actrow .btn{width:100%;padding:12px 14px}
-.btn{border-radius:10px}
-#review,#sugCard{background:var(--card)}
-/* grammar marks in red pen */
-.preview{font-size:17px;line-height:32px;color:var(--pen)}
-.preview mark{background:transparent;border-bottom:2px solid var(--redpen);border-radius:0}
-.sug del{background:transparent;color:var(--redpen)}
-.sug ins{background:transparent;color:var(--good);font-family:var(--hand);font-size:22px}
-.sug .kind{color:var(--redpen)}
-.revhead h3{font-family:var(--hand);font-size:24px;text-transform:none;letter-spacing:0;color:var(--redpen)}
-/* teacher's note for writing feedback */
-#fbCard{background:var(--note);border-radius:3px;padding:16px 14px;box-shadow:0 2px 8px rgba(60,40,10,.15);margin:4px -4px 0;position:relative}
-#fbCard::before{content:"";position:absolute;top:-9px;left:50%;width:84px;height:20px;margin-left:-42px;background:rgba(200,190,160,.55);transform:rotate(-2deg)}
-.band{background:transparent;color:var(--redpen)!important;border:2.5px solid var(--redpen);border-radius:50%;transform:rotate(-4deg)}
-.band b{font-family:var(--hand);font-size:32px}
-.fbtop h2{font-family:var(--hand);font-size:28px;color:var(--redpen)}
-.mini a{background:transparent;border:1.5px solid var(--line);color:var(--redpen)}
-.mini a b{font-family:var(--hand);font-size:22px}
-.crit{border-top:1px dashed var(--line)}
-.crit h4 span{font-family:var(--hand);font-size:23px;color:var(--pen)}
-.crit h4 b{font-family:var(--hand);font-size:24px;color:var(--redpen)}
-.bar i{background:var(--redpen);opacity:.75}
-.polished{background:transparent;color:var(--pen);font-size:17px;line-height:32px;padding:0 2px;border-radius:0;
-  background-image:linear-gradient(to bottom,transparent 31px,var(--rule) 31px);background-size:100% 32px}
-.fbsec h3,.fbsec summary{font-family:var(--hand);font-size:22px;text-transform:none;letter-spacing:0;color:var(--pen)}
-/* other pages share the paper look */
-#vPast .card,#vSettings .card{background:var(--card);border-radius:6px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-#vPast h3,#vSettings h3{font-family:var(--hand);font-size:24px;text-transform:none;letter-spacing:0;color:var(--pen);margin-bottom:6px}
-.stat{background:var(--card);border:0;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.stat b{font-family:var(--hand);font-size:32px;color:var(--pen)}
-.calhead h2{font-family:var(--hand);font-size:28px;color:var(--pen)}
-.cal button.has{background:var(--blue-soft)}
-.cal button.sel{background:var(--pen)}
-.item .d{font-family:var(--hand);font-size:22px;color:var(--pen);font-weight:700}
-.item .s{color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--pen);border-color:var(--pen)}
-nav.tabs{background:var(--card)}
-#lock{background:#1f2a52}
-#lock h2{font-family:var(--hand);font-size:40px}
-/* page turn */
-@keyframes turnNext{from{opacity:0;transform:perspective(1200px) rotateY(-14deg) translateX(30px)}to{opacity:1;transform:none}}
-@keyframes turnPrev{from{opacity:0;transform:perspective(1200px) rotateY(14deg) translateX(-30px)}to{opacity:1;transform:none}}
-#vWrite.turn-next{animation:turnNext .32s ease-out;transform-origin:left center}
-#vWrite.turn-prev{animation:turnPrev .32s ease-out;transform-origin:right center}
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+header{position:relative;background:transparent;color:var(--mauve);padding-bottom:4px}
+:root[data-theme="dark"] header{color:var(--mauve)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header{color:var(--mauve)}}
+header h1{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:.06em;line-height:1;color:var(--mauve)}
+header p{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.32em;color:var(--mauve-d);opacity:1;margin-top:4px}
+header .nav{color:var(--mauve)}
+main{gap:14px}
+.card{border-radius:18px}
+/* blocks */
+.blk{border-radius:18px;padding:14px 16px;position:relative}
+.blk h3{font-size:15px;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:0;margin:0 0 8px}
+.datebox{background:var(--peach);border-radius:10px;padding:10px 14px;font-weight:700;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.datebox span{font-weight:400}
+.datebox em{font-style:normal;font-size:13px;color:var(--muted);margin-left:auto}
+.thoughts{background:var(--lav);border-radius:90px 90px 18px 18px;padding:26px 16px 14px}
+.thoughts h3{display:flex;align-items:center;gap:8px}
+.thoughts h3 .dot{width:26px;height:26px;border-radius:50%;background:var(--lav-d);display:inline-block;margin-left:-6px}
+.grateful{background:var(--mint);border-radius:6px;padding:20px 16px 18px;margin:8px 0}
+.grateful::before,.grateful::after{content:"";position:absolute;left:0;right:0;height:16px;
+  background:radial-gradient(circle at 12px 16px,var(--mint) 11px,transparent 11.5px) 0 0/24px 16px repeat-x}
+.grateful::before{top:-12px}
+.grateful::after{bottom:-12px;transform:scaleY(-1)}
+.highlights{background:var(--pink);border-radius:6px;padding-bottom:34px;overflow:visible}
+.highlights .star{position:absolute;right:14px;bottom:-14px;width:44px;height:44px;background:var(--mauve);
+  clip-path:polygon(50% 0,58% 36%,90% 15%,66% 44%,100% 50%,66% 56%,90% 85%,58% 64%,50% 100%,42% 64%,10% 85%,34% 56%,0 50%,34% 44%,10% 15%,42% 36%)}
+.trk{background:var(--lav);border-radius:28px 28px 18px 18px}
+.trk.mood{background:var(--peach);border-radius:10px}
+.trk h3 .tab{display:inline-block;width:12px;height:20px;background:var(--lav-d);vertical-align:-4px;margin:0 8px 0 -16px;border-radius:0 3px 3px 0}
+.trk.mood::before{content:"";position:absolute;top:-8px;left:18px;width:44px;height:16px;background:var(--mauve);opacity:.7;transform:rotate(-3deg)}
+/* ruled writing with circle bullets */
+textarea#entry,textarea.ruled,.area textarea{--lh:34px;font-size:17px;line-height:var(--lh);color:var(--ink);border:0;border-radius:0;outline:none;background-color:transparent;background-attachment:local}
+textarea#entry{min-height:calc(var(--lh)*9);padding:0 2px 0 28px;
+  background-image:radial-gradient(circle at 8px calc(var(--lh)/2 + 4px),transparent 5px,var(--rule) 5.5px,var(--rule) 6.6px,transparent 7.2px),
+    linear-gradient(to bottom,transparent calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px));
+  background-size:100% var(--lh),100% var(--lh);background-position:0 0,28px 0;background-repeat:repeat-y,repeat-y}
+textarea.ruled,.area textarea{width:100%;resize:vertical;min-height:calc(var(--lh)*3);padding:0 2px;
+  background-image:linear-gradient(to bottom,transparent calc(var(--lh) - 1px),color-mix(in srgb,var(--rule) 45%,transparent) calc(var(--lh) - 1px));background-size:100% var(--lh)}
+textarea::placeholder{color:var(--muted);opacity:.85}
+.meta{border-top:0;padding-top:6px}
+/* water */
+.glasses{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-width:420px}
+.glass{background:none;border:0;padding:4px 0;cursor:pointer;color:var(--ink);display:flex;justify-content:center}
+.glass svg{width:30px;height:36px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.glass .w{fill:#7fb4e6;stroke:none;opacity:0;transition:opacity .15s}
+.glass.on .w{opacity:.85}
+.wcount{font-size:13px;color:var(--muted);margin-top:4px}
+@media (max-width:360px){.glasses{grid-template-columns:repeat(4,1fr)}}
+/* mood faces */
+.moods{justify-content:center;gap:22px}
+.moods::before{content:none}
+.moods button{flex:none;background:transparent;border:0;border-radius:50%;padding:4px;width:58px;height:58px;color:var(--ink);cursor:pointer}
+.moods button svg{width:50px;height:50px;fill:#fff;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+:root[data-theme="dark"] .moods button svg{fill:var(--card)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .moods button svg{fill:var(--card)}}
+.moods button[aria-pressed="true"]{background:transparent;box-shadow:0 0 0 3px var(--mauve)}
+.moods button span{display:none}
+/* layout: two columns on wide screens like the printable */
+.jgrid{display:flex;flex-direction:column;gap:14px}
+@media (min-width:600px){
+  .jgrid{display:grid;grid-template-columns:1.1fr 1fr;grid-template-areas:"date grat" "th grat" "th hi" "th water" "th mood";gap:14px 18px;align-items:start}
+  .datebox{grid-area:date}.thoughts{grid-area:th}.grateful{grid-area:grat}.highlights{grid-area:hi}.trk.water{grid-area:water}.trk.mood{grid-area:mood}
+}
+/* life areas in pastel cards */
+.jhead{margin-top:10px;display:block}
+.jhead span{display:block;margin-top:2px}
+.highlights .star{z-index:2}
+.jhead h2{font-family:var(--display);font-weight:800;color:var(--mauve);font-size:24px;letter-spacing:.04em}
+.area{border-radius:16px;border:0}
+.area:nth-child(4n+1){background:var(--lav)}.area:nth-child(4n+2){background:var(--mint)}.area:nth-child(4n+3){background:var(--pink)}.area:nth-child(4n){background:var(--peach)}
+.area .ai{background:rgba(255,255,255,.55)}
+.area .abody{border-top:0}
+.goal{background:rgba(255,255,255,.5);border-color:transparent}
+:root[data-theme="dark"] .goal,:root[data-theme="dark"] .area .ai{background:rgba(0,0,0,.18)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .goal,:root:not([data-theme="light"]) .area .ai{background:rgba(0,0,0,.18)}}
+.area textarea{background-color:transparent}
+.btn{background:var(--mauve);border-radius:14px}
+.btn.ghost{background:var(--lav);color:var(--ink)}
+.actrow .btn{white-space:nowrap;padding:12px 10px;font-size:15px;gap:6px}
+#fbCard{background:var(--card);border:2px solid var(--lav)}
+.band{background:var(--mauve)}
+.waves{height:28px;margin:6px -16px 0;background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='28'%3E%3Cpath d='M0 9 Q20 1 40 9 T80 9' fill='none' stroke='%23efd2d6' stroke-width='5'/%3E%3Cpath d='M0 20 Q20 12 40 20 T80 20' fill='none' stroke='%23d4ece2' stroke-width='5'/%3E%3C/svg%3E") repeat-x}
+.stat b,.calhead h2{color:var(--mauve)}
+.cal button.sel,.chip[aria-pressed="true"]{background:var(--mauve);border-color:var(--mauve)}
+#lock{background:#6f5260}
+@keyframes turnNext{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes turnPrev{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+#vWrite.turn-next{animation:turnNext .28s ease-out}
+#vWrite.turn-prev{animation:turnPrev .28s ease-out}
 @media (prefers-reduced-motion: reduce){#vWrite.turn-next,#vWrite.turn-prev{animation:none}}
 </style>
 </head>
@@ -392,12 +380,24 @@ nav.tabs{background:var(--card)}
 </header>
 
 <main id="vWrite">
-  <div class="moods" id="moods" role="group" aria-label="How was your day?"></div>
-  <div class="card entrycard">
-    <textarea id="entry" placeholder="How was your day? Write anything. Mistakes are fine, you can check them after." spellcheck="true" autocapitalize="sentences"></textarea>
-    <div class="meta"><span id="wc">0 words</span><span id="saved"></span></div>
+  <div class="jgrid">
+    <div class="datebox"><b>Date:</b> <span id="dateTxt"></span><em id="dateRel"></em></div>
+    <section class="blk thoughts entrycard"><h3><i class="dot"></i>Thoughts:</h3>
+      <textarea id="entry" placeholder="How was your day? Write anything. Mistakes are fine, you can check them after." spellcheck="true" autocapitalize="sentences"></textarea>
+      <div class="meta"><span id="wc">0 words</span><span id="saved"></span></div>
+    </section>
+    <section class="blk grateful"><h3>I am grateful for:</h3>
+      <textarea id="grateful" class="ruled" placeholder="Three small things that made today better…" spellcheck="true" autocapitalize="sentences"></textarea>
+    </section>
+    <section class="blk highlights"><h3>Highlights:</h3>
+      <textarea id="highlights" class="ruled" placeholder="The best moments of today…" spellcheck="true" autocapitalize="sentences"></textarea>
+      <i class="star" aria-hidden="true"></i>
+    </section>
+    <!-- Trackers: kept in their own blocks so they are easy to swap -->
+    <section class="blk trk water"><h3><span class="tab"></span>Water tracker:</h3><div class="glasses" id="water" role="group" aria-label="Glasses of water"></div><div class="wcount" id="wcount"></div></section>
+    <section class="blk trk mood"><h3>Mood tracker:</h3><div class="moods" id="moods" role="group" aria-label="How was your day?"></div></section>
   </div>
-  <div class="jhead"><h2>My life areas</h2><span class="small muted">Tick what you worked on today. All optional.</span></div>
+  <div class="jhead"><h2>MY LIFE AREAS</h2><span class="small muted">Tick what you worked on today. All optional.</span></div>
   <div id="areas" style="display:flex;flex-direction:column;gap:10px"></div>
   <div class="btnrow actrow">
     <button class="btn" id="checkBtn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg><span>Check grammar</span></button>
@@ -413,6 +413,7 @@ nav.tabs{background:var(--card)}
   </section>
   <div id="fbMsg"></div>
   <section class="card hide" id="fbCard"></section>
+  <div class="waves" aria-hidden="true"></div>
 </main>
 
 <main id="vPast" class="hide">
@@ -507,7 +508,7 @@ var entries = load("diary.entries", {});
 var settings = load("diary.settings", {});
 if(!settings.variant) settings.variant = "British/Indian English";
 if(!settings.remTime) settings.remTime = "21:00";
-var APP_VERSION = "1.6";
+var APP_VERSION = "1.7";
 // Which service a pasted key belongs to, from its prefix.
 function keyKind(k){ k = (k||"").trim(); return /^AIza/.test(k) ? "gemini" : /^sk-ant-/.test(k) ? "claude" : null; }
 // A Gemini key saved in the Claude field (older versions only had that field): move it over.
@@ -543,8 +544,9 @@ var AREAS = [
 var AREA = {}; AREAS.forEach(function(a){ AREA[a.id] = a; });
 function areaOf(e, id){ return (e && e.areas && e.areas[id]) || null; }
 function areaHas(e, id){ var a = areaOf(e, id); return !!(a && (((a.text||"").trim()) || (a.goals && a.goals.length))); }
-function allText(e){ if(!e) return ""; var t = [e.text||""]; AREAS.forEach(function(a){ var x = areaOf(e, a.id); if(x && x.text) t.push(x.text); }); return t.join("\n"); }
-function isEmpty(e){ return !e || (!(e.text||"").trim() && e.mood == null && !AREAS.some(function(a){ return areaHas(e, a.id); })); }
+var EXTRA = [{id:"grateful", name:"I am grateful for"}, {id:"highlights", name:"Highlights"}];
+function allText(e){ if(!e) return ""; var t = [e.text||"", e.grateful||"", e.highlights||""]; AREAS.forEach(function(a){ var x = areaOf(e, a.id); if(x && x.text) t.push(x.text); }); return t.join("\n"); }
+function isEmpty(e){ return !e || (!(e.text||"").trim() && !(e.grateful||"").trim() && !(e.highlights||"").trim() && !(e.water > 0) && e.mood == null && !AREAS.some(function(a){ return areaHas(e, a.id); })); }
 function hasEntry(k){ return !isEmpty(entries[k]); }
 
 var toastT;
@@ -562,16 +564,32 @@ var saveT, checking = false, checkSeq = 0;
 var CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 var CHEV_SVG = '<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
 
-function fieldEl(f){ return f === "main" ? $("entry") : document.querySelector('#areas textarea[data-area="'+f+'"]'); }
-function fieldName(f){ return f === "main" ? "Free writing" : AREA[f].name; }
-var FIELDS = ["main"].concat(AREAS.map(function(a){ return a.id; }));
+function fieldEl(f){ return f === "main" ? $("entry") : (f === "grateful" || f === "highlights") ? $(f) : document.querySelector('#areas textarea[data-area="'+f+'"]'); }
+function fieldName(f){ return f === "main" ? "Thoughts" : f === "grateful" ? "I am grateful for" : f === "highlights" ? "Highlights" : AREA[f].name; }
+var FIELDS = ["main","grateful","highlights"].concat(AREAS.map(function(a){ return a.id; }));
 
+var FACES = [
+  {m:4, label:"Happy", mouth:'<path d="M17 30q8 8 16 0" fill="none"/>'},
+  {m:2, label:"Okay", mouth:'<path d="M17 31h16" fill="none"/>'},
+  {m:0, label:"Sad", mouth:'<path d="M17 34q8-8 16 0" fill="none"/>'}];
+function moodBucket(v){ return v == null ? null : v >= 3 ? 4 : v === 2 ? 2 : 0; }
 function renderMoods(){
-  var e = entries[cur] || {};
-  $("moods").innerHTML = MOODS.map(function(m, i){
-    return '<button data-m="'+i+'" aria-pressed="'+(e.mood===i)+'">'+m[0]+'<span>'+m[1]+'</span></button>';
+  var e = entries[cur] || {}, b = moodBucket(e.mood);
+  $("moods").innerHTML = FACES.map(function(f){
+    return '<button data-m="'+f.m+'" aria-pressed="'+(b===f.m)+'" aria-label="'+f.label+'"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="22"/><circle cx="18" cy="20" r="2.2" fill="currentColor" stroke="none"/><circle cx="32" cy="20" r="2.2" fill="currentColor" stroke="none"/>'+f.mouth+'</svg><span>'+f.label+'</span></button>';
   }).join("");
 }
+var GLASS = '<svg viewBox="0 0 30 36"><path class="w" d="M7.2 14h15.6l-1.9 18.2H9.1z"/><path d="M4 3h22l-3 30H7z"/><path d="M5.2 14h19.6" stroke-dasharray="2 2"/></svg>';
+var curWater = 0;
+function renderWater(){
+  $("water").innerHTML = [0,1,2,3,4,5,6,7].map(function(i){ return '<button class="glass'+(i < curWater ? " on" : "")+'" data-w="'+i+'" aria-label="'+(i+1)+(i ? " glasses" : " glass")+'">'+GLASS+'</button>'; }).join("");
+  $("wcount").textContent = curWater ? curWater + " of 8 glasses" : "Tap a glass each time you drink one";
+}
+$("water").addEventListener("click", function(ev){
+  var b = ev.target.closest(".glass"); if(!b) return;
+  var i = +b.dataset.w; curWater = (curWater === i+1) ? i : i+1;
+  renderWater(); clearTimeout(saveT); saveT = null; saveNow();
+});
 function renderAreas(){
   var e = entries[cur];
   $("areas").innerHTML = AREAS.map(function(a){
@@ -597,9 +615,11 @@ function areaSummary(id){
 }
 function renderHeader(){
   var t = todayKey();
-  var d = dateOf(cur), wd = d.toLocaleDateString(undefined,{weekday:"long"});
-  $("htitle").textContent = cur===t ? "Today, " + wd : cur===addDays(t,-1) ? "Yesterday, " + wd : wd;
-  $("hsub").textContent = pad(d.getDate()) + " / " + pad(d.getMonth()+1) + " / " + d.getFullYear();
+  var d = dateOf(cur);
+  $("htitle").textContent = "DAILY";
+  $("hsub").textContent = "✳ JOURNAL ✳";
+  $("dateTxt").textContent = pad(d.getDate()) + " / " + pad(d.getMonth()+1) + " / " + d.getFullYear();
+  $("dateRel").textContent = (cur===t ? "Today · " : cur===addDays(t,-1) ? "Yesterday · " : "") + d.toLocaleDateString(undefined,{weekday:"long"});
   $("nextDay").disabled = cur >= t;
 }
 function openDay(k){
@@ -607,6 +627,8 @@ function openDay(k){
   cur = k; sugs = []; checkSeq++; checking = false; setChecking(false);
   var e = entries[cur] || {};
   $("entry").value = e.text || "";
+  $("grateful").value = e.grateful || ""; $("highlights").value = e.highlights || "";
+  curWater = Math.max(0, Math.min(8, +e.water || 0)); renderWater();
   notice("checkMsg");
   notice("fbMsg"); fbSeq++; fbBusy = false; setFbBusy(false);
   renderHeader(); renderMoods(); renderAreas(); renderMeta(); renderReview(); renderFeedback();
@@ -620,6 +642,9 @@ function renderMeta(){
 function readDay(){
   // Current page contents as an entry object.
   var old = entries[cur] || {}, e = {text:$("entry").value, mood:old.mood == null ? null : old.mood, updated:old.updated, areas:{}};
+  if($("grateful").value) e.grateful = $("grateful").value;
+  if($("highlights").value) e.highlights = $("highlights").value;
+  if(curWater) e.water = curWater;
   if(old.feedback) e.feedback = old.feedback;
   AREAS.forEach(function(a){
     var card = document.querySelector('.area[data-a="'+a.id+'"]'); if(!card) return;
@@ -630,7 +655,7 @@ function readDay(){
   if(!Object.keys(e.areas).length) delete e.areas;
   return e;
 }
-function sameDay(a, b){ return JSON.stringify([a.text||"", a.mood == null ? null : a.mood, a.areas||{}]) === JSON.stringify([b.text||"", b.mood == null ? null : b.mood, b.areas||{}]); }
+function sameDay(a, b){ var f = function(x){ return JSON.stringify([x.text||"", x.mood == null ? null : x.mood, x.areas||{}, x.grateful||"", x.highlights||"", x.water||0]); }; return f(a) === f(b); }
 function saveNow(){
   var e = readDay(), old = entries[cur] || {};
   if(sameDay(e, old) && old.updated) return;
@@ -1222,6 +1247,9 @@ function restoreFrom(text){
       });
       if(!Object.keys(b.areas).length) delete b.areas;
     }
+    if(typeof inc[k].grateful === "string" && inc[k].grateful) b.grateful = inc[k].grateful;
+    if(typeof inc[k].highlights === "string" && inc[k].highlights) b.highlights = inc[k].highlights;
+    if(+inc[k].water > 0) b.water = Math.min(8, Math.round(+inc[k].water));
     var ifb = inc[k].feedback && cleanFeedback(inc[k].feedback);
     if(ifb){ ["at","sig","words","by"].forEach(function(x){ if(inc[k].feedback[x] != null) ifb[x] = inc[k].feedback[x]; }); b.feedback = ifb; }
     if(!a || (b.updated > (a.updated||0))){ entries[k] = b; added++; } else kept++;
@@ -1393,7 +1421,7 @@ function show(v){
   var onWrite = v === "vWrite";
   $("prevDay").style.visibility = $("nextDay").style.visibility = onWrite ? "" : "hidden";
   if(onWrite) renderHeader();
-  else { $("htitle").textContent = v === "vPast" ? "Past days" : "Settings"; $("hsub").textContent = v === "vPast" ? "Tap a day to read or edit it" : "Grammar help, reminder and backup"; }
+  else { $("htitle").textContent = v === "vPast" ? "PAST DAYS" : "SETTINGS"; $("hsub").textContent = v === "vPast" ? "Tap a day to read or edit it" : "Grammar help, reminder and backup"; }
   if(v === "vPast") renderPast();
   if(v === "vSettings") renderSettings();
   window.scrollTo(0,0);
