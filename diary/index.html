@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Diary">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>try{var _s=JSON.parse(localStorage.getItem("diary.settings")||"{}");if(_s.pinHash)document.documentElement.classList.add("locked")}catch(e){}</script>
 <style>
 @font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(../fonts/bricolage-grotesque-latin-opsz-normal.woff2) format("woff2")}
 @font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2")}
@@ -135,11 +136,59 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card)
 nav.tabs button{flex:1;background:none;border:0;padding:8px 0 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);cursor:pointer}
 nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs button[aria-current="page"]{color:var(--ink-blue);font-weight:700}
+/* PIN lock */
+html.locked header,html.locked main,html.locked nav.tabs{visibility:hidden}
+#lock{position:fixed;inset:0;z-index:20;background:var(--ink-blue);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;overflow:auto}
+:root[data-theme="dark"] #lock{background:#141a2e;color:#e8e9ef}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #lock{background:#141a2e;color:#e8e9ef}}
+#lock .lk-icon{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+#lock .lk-icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#lock h2{font-family:var(--display);font-size:24px;margin:0;color:inherit}
+#lock .lk-sub{margin:6px 0 0;font-size:15px;opacity:.85;min-height:22px}
+#lock .lk-msg{margin:4px 0 0;font-size:14px;min-height:20px;color:#ffd2cc;font-weight:700}
+#lkPad{display:flex;flex-direction:column;align-items:center}
+.dots{display:flex;gap:16px;margin:22px 0 26px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;opacity:.9}
+.dots i.on{background:currentColor}
+.dots.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.keys{display:grid;grid-template-columns:repeat(3,76px);gap:14px 22px}
+.keys button{width:76px;height:76px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:inherit;font-family:var(--display);font-size:30px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.keys button:active{background:rgba(255,255,255,.28)}
+.keys button.txt{background:none;font-family:var(--body);font-size:15px;font-weight:700}
+.keys button:disabled{opacity:.35}
+.keys button svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#lock .forgot{max-width:340px;text-align:left;background:rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-top:8px;font-size:15px}
+#lock .forgot input{margin:8px 0;background:#fff;color:#1f2230;border:0}
+#lock .forgot .btn{background:#fff;color:var(--bad)}
+#lock .forgot .btn.plain{background:none;color:inherit;border:1.5px solid rgba(255,255,255,.4)}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:99px;font-size:14px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
+<div id="lock" class="hide" role="dialog" aria-modal="true" aria-labelledby="lkTitle">
+  <div class="lk-icon"><svg viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div>
+  <h2 id="lkTitle">Diary</h2>
+  <p class="lk-sub" id="lkSub">Enter your PIN</p>
+  <p class="lk-msg" id="lkMsg" aria-live="polite"></p>
+  <div id="lkPad">
+    <div class="dots" id="lkDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="keys" id="lkKeys">
+      <button data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
+      <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
+      <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
+      <button class="txt" id="lkLeft">Forgot?</button><button data-d="0">0</button>
+      <button class="txt" id="lkDel" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg></button>
+    </div>
+  </div>
+  <div class="forgot hide" id="lkForgot">
+    <p><b>A forgotten PIN can't be recovered.</b> To get back in, erase this diary and start again. If you saved a backup, you can restore it afterwards in Settings.</p>
+    <p>Type ERASE to delete every entry on this phone.</p>
+    <input type="text" id="lkErase" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <div class="btnrow"><button class="btn" id="lkEraseBtn">Erase diary</button><button class="btn plain" id="lkBack">Back</button></div>
+  </div>
+</div>
 <header>
   <div class="hrow">
     <button class="nav" id="prevDay" aria-label="Previous day"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -200,6 +249,11 @@ nav.tabs button[aria-current="page"]{color:var(--ink-blue);font-weight:700}
     </div>
     <div class="btnrow"><button class="btn" id="saveKey">Save</button><button class="btn line" id="testKey">Test key</button></div>
     <div id="keyMsg" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h3>PIN lock</h3>
+    <p class="small muted" id="pinState"></p>
+    <div class="btnrow" id="pinBtns"></div>
   </div>
   <div class="card" id="remCard">
     <h3>Daily reminder</h3>
@@ -538,6 +592,7 @@ function renderSettings(){
   $("remOn").closest(".field").classList.toggle("hide", !canRemind);
   $("remTime").closest(".field").classList.toggle("hide", !canRemind);
   $("remIos").classList.toggle("hide", canRemind);
+  renderPin();
 }
 $("showKey").onclick = function(){ var i = $("apiKey"); var s = i.type === "password"; i.type = s ? "text" : "password"; this.textContent = s ? "Hide" : "Show"; };
 function saveKeySettings(){ settings.apiKey = $("apiKey").value.trim(); settings.variant = $("variant").value; store("diary.settings", settings); }
@@ -604,6 +659,139 @@ $("backupBtn").onclick = function(){
 $("restoreBtn").onclick = function(){ if(NATIVE && NATIVE.openBackup) NATIVE.openBackup(); else $("restoreFile").click(); };
 $("restoreFile").onchange = function(){ var f = this.files[0]; if(!f) return; var r = new FileReader(); r.onload = function(){ restoreFrom(String(r.result)); }; r.readAsText(f); this.value = ""; };
 
+/* ---------- PIN lock ---------- */
+function sha256(str){
+  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  var b=unescape(encodeURIComponent(str)), l=b.length, words=[], i;
+  for(i=0;i<l;i++) words[i>>2] |= (b.charCodeAt(i)&255) << (24-(i%4)*8);
+  words[l>>2] |= 0x80 << (24-(l%4)*8);
+  var n = ((l+8)>>6)*16+16; words[n-1] = l*8;
+  for(i=0;i<n;i++) words[i] = words[i]|0;
+  var w=new Array(64), r=function(x,c){ return (x>>>c)|(x<<(32-c)); };
+  for(var j=0;j<n;j+=16){
+    var a=H[0],bb=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(i=0;i<64;i++){
+      if(i<16) w[i]=words[j+i];
+      else { var s0=r(w[i-15],7)^r(w[i-15],18)^(w[i-15]>>>3), s1=r(w[i-2],17)^r(w[i-2],19)^(w[i-2]>>>10); w[i]=(w[i-16]+s0+w[i-7]+s1)|0; }
+      var t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0, t2=((r(a,2)^r(a,13)^r(a,22))+((a&bb)^(a&c)^(bb&c)))|0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=bb; bb=a; a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0; H[1]=(H[1]+bb)|0; H[2]=(H[2]+c)|0; H[3]=(H[3]+d)|0; H[4]=(H[4]+e)|0; H[5]=(H[5]+f)|0; H[6]=(H[6]+g)|0; H[7]=(H[7]+h)|0;
+  }
+  return H.map(function(x){ return ("00000000"+(x>>>0).toString(16)).slice(-8); }).join("");
+}
+function pinHash(pin, salt){ var h = salt+":"+pin; for(var i=0;i<1500;i++) h = sha256(h+":"+salt); return h; }
+function newSalt(){
+  var a = new Uint8Array(16);
+  try{ crypto.getRandomValues(a); }catch(e){ for(var i=0;i<16;i++) a[i] = Math.random()*256|0; }
+  return Array.prototype.map.call(a, function(x){ return ("0"+x.toString(16)).slice(-2); }).join("");
+}
+var PIN_LEN = 4, RELOCK_MS = 30000;
+var lk = {mode:null, buf:"", first:"", after:null, timer:null};
+function hasPin(){ return !!settings.pinHash; }
+function lockFails(){ return load("diary.lockfails", {n:0, until:0}); }
+function lkDots(){ var d = $("lkDots").children; for(var i=0;i<d.length;i++) d[i].className = i < lk.buf.length ? "on" : ""; }
+function lkSet(title, sub, msg){ $("lkTitle").textContent = title; $("lkSub").textContent = sub; $("lkMsg").textContent = msg||""; }
+function lkShake(){ var d = $("lkDots"); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake"); if(navigator.vibrate) try{ navigator.vibrate(120); }catch(e){} }
+function lkWaitCheck(){
+  clearTimeout(lk.timer);
+  var f = lockFails(), left = Math.ceil((f.until - Date.now())/1000);
+  var keys = $("lkKeys").querySelectorAll("button[data-d],#lkDel");
+  for(var i=0;i<keys.length;i++) keys[i].disabled = left > 0;
+  if(left > 0){ $("lkMsg").textContent = "Too many tries. Wait " + left + "s."; lk.timer = setTimeout(lkWaitCheck, 1000); return true; }
+  if(/^Too many/.test($("lkMsg").textContent)) $("lkMsg").textContent = "";
+  return false;
+}
+function openLock(mode, after){
+  // modes: unlock (on open), verify (before change/turn off), new1, new2 (choose a PIN)
+  lk.mode = mode; lk.buf = ""; lk.after = after || null;
+  if(mode === "new1") lk.first = "";
+  $("lock").classList.remove("hide");
+  $("lkPad").classList.remove("hide"); $("lkForgot").classList.add("hide");
+  $("lkLeft").textContent = mode === "unlock" ? "Forgot?" : "Cancel";
+  if(mode === "unlock") lkSet("Diary", "Enter your PIN");
+  else if(mode === "verify") lkSet("Current PIN", "Enter your current PIN");
+  else if(mode === "new1") lkSet("New PIN", "Choose a " + PIN_LEN + "-digit PIN");
+  else lkSet("New PIN", "Enter the same PIN again");
+  lkDots();
+  if(mode === "unlock" || mode === "verify") lkWaitCheck();
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+function closeLock(){ lk.mode = null; lk.buf = ""; clearTimeout(lk.timer); $("lock").classList.add("hide"); document.documentElement.classList.remove("locked"); }
+function lockNow(){ if(hasPin() && lk.mode !== "unlock"){ flushSave(); document.documentElement.classList.add("locked"); openLock("unlock"); } }
+function lkComplete(){
+  var pin = lk.buf;
+  if(lk.mode === "unlock" || lk.mode === "verify"){
+    if(pinHash(pin, settings.pinSalt) === settings.pinHash){
+      store("diary.lockfails", {n:0, until:0});
+      var after = lk.after;
+      if(lk.mode === "unlock") closeLock(); else if(after) after(); else closeLock();
+      return;
+    }
+    var f = lockFails(); f.n++;
+    if(f.n >= 5) f.until = Date.now() + 30000 * Math.pow(2, Math.min(f.n - 5, 5));
+    store("diary.lockfails", f);
+    lk.buf = ""; lkShake(); setTimeout(lkDots, 150);
+    if(!lkWaitCheck()) $("lkMsg").textContent = "Wrong PIN. Try again.";
+    return;
+  }
+  if(lk.mode === "new1"){ lk.first = pin; openLock("new2", lk.after); return; }
+  if(lk.mode === "new2"){
+    if(pin !== lk.first){ lk.buf = ""; lkShake(); openLock("new1", lk.after); $("lkMsg").textContent = "The two PINs didn't match. Start again."; return; }
+    var hadPin = hasPin();
+    settings.pinSalt = newSalt(); settings.pinHash = pinHash(pin, settings.pinSalt);
+    store("diary.settings", settings); store("diary.lockfails", {n:0, until:0});
+    closeLock(); renderSettings(); toast(hadPin ? "PIN changed" : "PIN lock is on");
+  }
+}
+function lkDigit(d){
+  if(!lk.mode || lk.buf.length >= PIN_LEN) return;
+  if((lk.mode === "unlock" || lk.mode === "verify") && lkWaitCheck()) return;
+  lk.buf += d; lkDots();
+  if(lk.buf.length === PIN_LEN) setTimeout(lkComplete, 120);
+}
+$("lkKeys").addEventListener("click", function(ev){ var b = ev.target.closest("button[data-d]"); if(b) lkDigit(b.dataset.d); });
+$("lkDel").onclick = function(){ lk.buf = lk.buf.slice(0,-1); lkDots(); };
+$("lkLeft").onclick = function(){
+  if(lk.mode === "unlock"){ $("lkPad").classList.add("hide"); $("lkForgot").classList.remove("hide"); $("lkErase").value = ""; lkSet("Forgot your PIN?", ""); return; }
+  closeLock();
+};
+$("lkBack").onclick = function(){ openLock("unlock"); };
+$("lkEraseBtn").onclick = function(){
+  if($("lkErase").value.trim().toUpperCase() !== "ERASE"){ $("lkMsg").textContent = "Type ERASE to confirm."; return; }
+  entries = {}; store("diary.entries", entries);
+  delete settings.pinHash; delete settings.pinSalt; store("diary.settings", settings); store("diary.lockfails", {n:0, until:0});
+  closeLock(); openDay(todayKey()); show("vWrite"); toast("Diary erased. PIN lock is off.");
+};
+document.addEventListener("keydown", function(ev){
+  if(!lk.mode || !$("lkForgot").classList.contains("hide")) return;
+  if(/^[0-9]$/.test(ev.key)){ lkDigit(ev.key); ev.preventDefault(); }
+  else if(ev.key === "Backspace"){ lk.buf = lk.buf.slice(0,-1); lkDots(); ev.preventDefault(); }
+});
+function renderPin(){
+  $("pinState").textContent = hasPin()
+    ? "On. The diary asks for your PIN when it opens, and again after it's been in the background for 30 seconds."
+    : "Off. Turn it on to ask for a " + PIN_LEN + "-digit PIN whenever the diary opens.";
+  $("pinBtns").innerHTML = hasPin()
+    ? '<button class="btn ghost" id="pinChange">Change PIN</button><button class="btn line" id="pinOff">Turn off</button>'
+    : '<button class="btn ghost" id="pinOn">Set a PIN</button>';
+}
+$("pinBtns").addEventListener("click", function(ev){
+  var b = ev.target.closest("button"); if(!b) return;
+  if(b.id === "pinOn") openLock("new1");
+  else if(b.id === "pinChange") openLock("verify", function(){ openLock("new1"); });
+  else if(b.id === "pinOff") openLock("verify", function(){
+    delete settings.pinHash; delete settings.pinSalt; store("diary.settings", settings);
+    closeLock(); renderSettings(); toast("PIN lock is off");
+  });
+});
+var hiddenAt = 0;
+document.addEventListener("visibilitychange", function(){
+  if(document.hidden){ hiddenAt = Date.now(); if(lk.mode && lk.mode !== "unlock") closeLock(); }
+  else if(hasPin() && hiddenAt && Date.now() - hiddenAt > RELOCK_MS) lockNow();
+});
+
 /* ---------- navigation ---------- */
 var view = "vWrite";
 function show(v){
@@ -632,6 +820,7 @@ document.addEventListener("visibilitychange", function(){
 });
 
 openDay(cur);
+if(hasPin()) openLock("unlock"); else document.documentElement.classList.remove("locked");
 if(NATIVE && settings.remOn) pushReminder();
 if(!NATIVE && "serviceWorker" in navigator && location.protocol === "https:"){ navigator.serviceWorker.register("sw.js", {scope:"./"}).catch(function(){}); }
 })();
