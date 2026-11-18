@@ -287,10 +287,7 @@ main{gap:14px}
 .trk.mood::before{content:"";position:absolute;top:-8px;left:18px;width:44px;height:16px;background:var(--mauve);opacity:.7;transform:rotate(-3deg)}
 /* ruled writing with circle bullets */
 textarea#entry,textarea.ruled,.area textarea{--lh:34px;font-size:17px;line-height:var(--lh);color:var(--ink);border:0;border-radius:0;outline:none;background-color:transparent;background-attachment:local}
-textarea#entry{min-height:calc(var(--lh)*9);padding:0 2px 0 28px;
-  background-image:radial-gradient(circle at 8px calc(var(--lh)/2 + 4px),transparent 5px,var(--rule) 5.5px,var(--rule) 6.6px,transparent 7.2px),
-    linear-gradient(to bottom,transparent calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px));
-  background-size:100% var(--lh),100% var(--lh);background-position:0 0,28px 0;background-repeat:repeat-y,repeat-y}
+textarea#entry{width:100%;resize:vertical;min-height:calc(var(--lh)*9);padding:0 2px;line-height:1.6}
 textarea.ruled,.area textarea{width:100%;resize:vertical;min-height:calc(var(--lh)*3);padding:0 2px;
   background-image:linear-gradient(to bottom,transparent calc(var(--lh) - 1px),color-mix(in srgb,var(--rule) 45%,transparent) calc(var(--lh) - 1px));background-size:100% var(--lh)}
 textarea::placeholder{color:var(--muted);opacity:.85}
@@ -510,7 +507,7 @@ var entries = load("diary.entries", {});
 var settings = load("diary.settings", {});
 if(!settings.variant) settings.variant = "British/Indian English";
 if(!settings.remTime) settings.remTime = "21:00";
-var APP_VERSION = "2.0";
+var APP_VERSION = "2.1";
 // Which service a pasted key belongs to, from its prefix.
 function keyKind(k){ k = (k||"").trim(); return /^AIza/.test(k) ? "gemini" : /^sk-ant-/.test(k) ? "claude" : null; }
 // A Gemini key saved in the Claude field (older versions only had that field): move it over.
