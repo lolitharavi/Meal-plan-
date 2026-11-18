@@ -1,6 +1,6 @@
 // Network first, so every open with internet gets the latest version; cache for offline.
 // Registered with scope ./diary/ so it takes over from the meal plan's worker on these pages.
-const CACHE = "diary-v4";
+const CACHE = "diary-v5";
 const FILES = ["./", "index.html", "manifest.webmanifest",
   "../fonts/atkinson-hyperlegible-latin-400-normal.woff2", "../fonts/atkinson-hyperlegible-latin-700-normal.woff2",
   "../fonts/bricolage-grotesque-latin-opsz-normal.woff2", "icons/icon-192.png", "icons/apple-touch-icon.png"];
