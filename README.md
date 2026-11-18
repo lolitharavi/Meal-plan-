@@ -3,3 +3,5 @@
 Family weekly meal plan: today's meals, meal and calorie tracking, shopping list, budget and recipes.
 
 Open it at https://lolitharavi.github.io/Meal-plan-/ and add it to your phone's Home Screen. It works offline after the first visit.
+
+MRICS Coach (APC study companion: competencies, mock interviews, reading sessions and CPD) is at https://lolitharavi.github.io/Meal-plan-/mrics/ and can be added to the Home Screen the same way.
