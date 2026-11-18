@@ -6,4 +6,4 @@ Open it at https://lolitharavi.github.io/Meal-plan-/ and add it to your phone's 
 
 ## Daily Diary
 
-A private daily diary with grammar suggestions from Claude. Open it at https://lolitharavi.github.io/Meal-plan-/diary/ and add it to your phone's Home Screen. Entries stay on the phone; add your own Claude API key in Settings to turn on grammar help.
+A private daily diary with grammar suggestions from Claude. Open it at https://lolitharavi.github.io/Meal-plan-/diary/ and add it to your phone's Home Screen. Entries stay on the phone; add a free Google Gemini key (or a Claude key) in Settings to turn on grammar help.
